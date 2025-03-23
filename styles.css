@@ -137,4 +137,70 @@ canvas {
 #toggle-tax-details:hover:after {
     transform: scaleX(1);
     transform-origin: bottom left;
+}
+
+/* Example Preview Cards */
+.preview-card {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+}
+
+.preview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+}
+
+.preview-card .income {
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.preview-card .tax {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+.preview-card .percentage {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.preview-card.zero-tax {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.preview-card.zero-tax .tax {
+    color: #16a34a;
+}
+
+.preview-card.high-tax {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.preview-card.high-tax .tax {
+    color: #2563eb;
+}
+
+/* Responsive adjustments for preview cards */
+@media (max-width: 768px) {
+    .preview-card {
+        padding: 0.75rem;
+    }
+    
+    .preview-card .tax {
+        font-size: 1.125rem;
+    }
+    
+    .preview-card .percentage {
+        font-size: 0.75rem;
+    }
 } 

@@ -9,6 +9,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleTaxDetailsBtn = document.getElementById('toggle-tax-details');
     const taxDetailsSection = document.getElementById('tax-details-section');
     const taxSlabDetailsDiv = document.getElementById('tax-slab-details');
+    const exampleCardsContainer = document.getElementById('example-cards-container');
+
+    // Example income values in lakhs
+    const exampleIncomes = [
+        { value: 12, label: '₹12 Lakhs' },
+        { value: 12.75, label: '₹12.75 Lakhs' },
+        { value: 15, label: '₹15 Lakhs' },
+        { value: 20, label: '₹20 Lakhs' },
+        { value: 25, label: '₹25 Lakhs' },
+        { value: 30, label: '₹30 Lakhs' },
+        { value: 35, label: '₹35 Lakhs' },
+        { value: 50, label: '₹50 Lakhs' }
+    ];
 
     // Tax slabs for FY 2025-26
     const taxSlabs = [
@@ -34,6 +47,53 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
+    }
+
+    // Generate and update example tax preview cards
+    function updateExampleCards() {
+        // Clear previous cards
+        exampleCardsContainer.innerHTML = '';
+        
+        // Get salaried status
+        const isSalaried = isSalariedCheckbox.checked;
+        
+        // Generate cards for each example income
+        exampleIncomes.forEach(income => {
+            // Calculate taxable income and tax
+            const incomeInRupees = income.value * LAKH_VALUE;
+            const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
+            const taxableIncome = Math.max(0, incomeInRupees - standardDeduction);
+            const tax = calculateTaxAmount(taxableIncome);
+            const effectiveRate = incomeInRupees > 0 ? (tax / incomeInRupees * 100).toFixed(1) : 0;
+            
+            // Determine card style class
+            let cardClass = 'preview-card';
+            if (tax === 0) {
+                cardClass += ' zero-tax';
+            } else if (income.value >= 30) {
+                cardClass += ' high-tax';
+            }
+            
+            // Create card element
+            const card = document.createElement('div');
+            card.className = cardClass;
+            card.innerHTML = `
+                <div class="income">${income.label}</div>
+                <div class="tax">${formatCurrency(tax)}</div>
+                <div class="percentage">${effectiveRate}% of income</div>
+            `;
+            
+            // Add click event to set this income in the calculator
+            card.addEventListener('click', function() {
+                incomeInput.value = income.value;
+                calculateTax();
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Add card to container
+            exampleCardsContainer.appendChild(card);
+        });
     }
 
     // Toggle tax details section
@@ -81,11 +141,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const debouncedCalculate = debounce(calculateTax);
     incomeInput.addEventListener('input', debouncedCalculate);
     
-    // Immediate calculate for checkbox changes
-    isSalariedCheckbox.addEventListener('change', calculateTax);
+    // Immediate calculate for checkbox changes and update example cards
+    isSalariedCheckbox.addEventListener('change', function() {
+        calculateTax();
+        updateExampleCards();
+    });
 
     // Initial calculation when page loads
     window.addEventListener('load', function() {
+        // Generate example cards
+        updateExampleCards();
+        
         // Only calculate if there's an income value (to avoid showing 0 on initial load)
         if (incomeInput.value) {
             calculateTax();
