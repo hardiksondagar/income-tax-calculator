@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-0">
                 <label class="inline-flex items-center">
                     <input type="checkbox" id="is-salaried" name="is-salaried" class="form-checkbox h-5 w-5 text-indigo-600" checked>
                     <span class="ml-2 text-gray-700">I am a salaried employee (₹75,000 standard deduction)</span>
@@ -37,16 +37,6 @@
             </div>
 
             <!-- All deduction sections have been removed for simplified calculation -->
-        </div>
-
-        <!-- Example Tax Preview Cards -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Example Tax Calculations</h2>
-            <p class="text-sm text-gray-600 mb-5">See how much tax you would pay at different income levels:</p>
-            
-            <div id="example-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                <!-- Cards will be inserted here -->
-            </div>
         </div>
 
         <div id="results" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
@@ -76,6 +66,16 @@
                     <h4 class="text-md font-medium text-gray-700 mb-2">Tax Calculation by Slabs</h4>
                     <div id="tax-slab-details" class="bg-white border border-gray-200 rounded-lg p-3 text-sm"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Example Tax Preview Cards -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Example Tax Calculations</h2>
+            <p class="text-sm text-gray-600 mb-5">See how much tax you would pay at different income levels:</p>
+            
+            <div id="example-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Cards will be inserted here -->
             </div>
         </div>
 
