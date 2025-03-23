@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
     const incomeInput = document.getElementById('income');
+    const incomeSlider = document.getElementById('income-slider');
+    const sliderTooltip = document.getElementById('slider-tooltip');
+    const tooltipValue = document.getElementById('tooltip-value');
     const isSalariedCheckbox = document.getElementById('is-salaried');
     const resultsSection = document.getElementById('results');
     const taxAmountSpan = document.getElementById('tax-amount');
@@ -144,6 +147,79 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Slider functionality
+    function initSlider() {
+        // Set initial slider value if income input has a value
+        if (incomeInput.value) {
+            incomeSlider.value = parseFloat(incomeInput.value);
+            updateSliderValue(incomeSlider.value);
+        }
+
+        // Update slider when income input changes
+        incomeInput.addEventListener('input', function() {
+            const value = parseFloat(this.value) || 0;
+            // Cap at the slider's max value
+            const cappedValue = Math.min(value, parseFloat(incomeSlider.max));
+            incomeSlider.value = cappedValue;
+            updateSliderValue(cappedValue);
+        });
+
+        // Update income input when slider changes
+        incomeSlider.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            incomeInput.value = value;
+            updateSliderValue(value);
+            debouncedCalculate();
+        });
+
+        // Show tooltip when dragging slider
+        incomeSlider.addEventListener('mousedown', function() {
+            updateTooltipPosition();
+            sliderTooltip.classList.add('visible');
+        });
+
+        incomeSlider.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) { // Only if mouse button is pressed
+                updateTooltipPosition();
+            }
+        });
+
+        incomeSlider.addEventListener('touchstart', function() {
+            updateTooltipPosition();
+            sliderTooltip.classList.add('visible');
+        });
+
+        incomeSlider.addEventListener('touchmove', function() {
+            updateTooltipPosition();
+        });
+
+        // Hide tooltip when releasing mouse
+        window.addEventListener('mouseup', function() {
+            sliderTooltip.classList.remove('visible');
+        });
+
+        window.addEventListener('touchend', function() {
+            sliderTooltip.classList.remove('visible');
+        });
+    }
+
+    // Update the slider value display
+    function updateSliderValue(value) {
+        const formattedValue = value > 0 ? '₹' + value + ' Lakhs' : '₹0';
+        tooltipValue.textContent = formattedValue;
+    }
+
+    // Update tooltip position
+    function updateTooltipPosition() {
+        const slider = incomeSlider;
+        const percent = (slider.value - slider.min) / (slider.max - slider.min);
+        const sliderWidth = slider.offsetWidth;
+        const thumbPosition = percent * sliderWidth;
+        
+        // Position tooltip above the thumb
+        sliderTooltip.style.left = thumbPosition + 'px';
+    }
+
     // Auto-calculate tax on input changes - with debounce for text inputs
     const debouncedCalculate = debounce(calculateTax);
     incomeInput.addEventListener('input', debouncedCalculate);
@@ -154,8 +230,19 @@ document.addEventListener('DOMContentLoaded', function() {
         updateExampleCards();
     });
 
+    // Calculate tax button click handler
+    const calculateTaxBtn = document.getElementById('calculate-tax-btn');
+    calculateTaxBtn.addEventListener('click', function() {
+        calculateTax();
+        // Scroll to results
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    });
+
     // Initial calculation when page loads
     window.addEventListener('load', function() {
+        // Initialize slider functionality
+        initSlider();
+        
         // Generate example cards
         updateExampleCards();
         
@@ -173,6 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get income in lakhs and convert to rupees
         const incomeInLakhs = parseFloat(incomeInput.value) || 0;
         const income = incomeInLakhs * LAKH_VALUE;
+        
+        // Update slider if it doesn't match (e.g., if set programmatically)
+        if (incomeSlider.value != incomeInLakhs) {
+            incomeSlider.value = Math.min(incomeInLakhs, parseFloat(incomeSlider.max));
+            updateSliderValue(incomeSlider.value);
+        }
         
         // Get standard deduction if applicable
         const isSalaried = isSalariedCheckbox.checked;

@@ -27,6 +27,22 @@
                         <span class="text-gray-500 sm:text-sm">Lakhs</span>
                     </div>
                 </div>
+                
+                <!-- Income Slider with Visual Feedback -->
+                <div class="mt-4 mb-2">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>₹0</span>
+                        <span>₹50L</span>
+                    </div>
+                    <div class="relative">
+                        <input type="range" id="income-slider" class="w-full h-2 appearance-none cursor-pointer" 
+                            min="0" max="50" step="0.25" value="0">
+                        <div id="slider-tooltip" class="absolute -top-8 transform -translate-x-1/2 bg-indigo-600 text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none transition-opacity">
+                            <span id="tooltip-value">₹0</span>
+                            <div class="tooltip-arrow"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-0">
@@ -34,6 +50,13 @@
                     <input type="checkbox" id="is-salaried" name="is-salaried" class="form-checkbox h-5 w-5 text-indigo-600" checked>
                     <span class="ml-2 text-gray-700">I am a salaried employee (₹75,000 standard deduction)</span>
                 </label>
+            </div>
+
+            <!-- Calculate Tax Button -->
+            <div class="mt-6">
+                <button id="calculate-tax-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors shadow-md">
+                    Calculate Tax
+                </button>
             </div>
 
             <!-- All deduction sections have been removed for simplified calculation -->

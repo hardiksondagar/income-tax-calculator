@@ -63,7 +63,7 @@ This calculator is for informational purposes only and should not be considered 
 
 ## Planned Features
 
-- [ ] Income slider with visual feedback alongside numerical input
+- [x] Income slider with visual feedback alongside numerical input
 - [ ] Net income visualization - pie chart showing tax vs take-home amount
 - [x] Monthly take-home calculator showing post-tax monthly salary
 - [ ] Old vs new tax regime comparison tool
