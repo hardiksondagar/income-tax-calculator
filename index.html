@@ -36,57 +36,7 @@
                 </label>
             </div>
 
-            <div id="additional-deductions-toggle">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" id="show-additional-deductions" class="form-checkbox h-5 w-5 text-indigo-600">
-                    <span class="ml-2 text-gray-700">I have additional deductions</span>
-                </label>
-            </div>
-
-            <div id="additional-deductions-section" class="mb-6 hidden">
-                <div class="p-4 bg-gray-50 rounded-lg space-y-4">
-                    <h3 class="font-medium text-gray-800 mb-2">Eligible Deductions Under New Regime</h3>
-                    
-                    <div>
-                        <label for="nps-employer-contrib" class="block text-sm font-medium text-gray-700 mb-1">Employer's NPS Contribution (₹)</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">₹</span>
-                            </div>
-                            <input type="number" id="nps-employer-contrib" name="nps-employer-contrib" 
-                                class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-2 sm:text-md border-gray-300 rounded-md"
-                                placeholder="0" min="0" step="1000">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">Up to 14% of salary for government employees, 10% for others</p>
-                    </div>
-                    
-                    <div>
-                        <label for="housing-loan-interest" class="block text-sm font-medium text-gray-700 mb-1">Home Loan Interest on Self-Occupied Property (₹)</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">₹</span>
-                            </div>
-                            <input type="number" id="housing-loan-interest" name="housing-loan-interest" 
-                                class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-2 sm:text-md border-gray-300 rounded-md"
-                                placeholder="0" min="0" step="1000">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">First-time home buyers: Up to ₹1,50,000 (Section 24)</p>
-                    </div>
-                    
-                    <div>
-                        <label for="other-deductions" class="block text-sm font-medium text-gray-700 mb-1">Other Eligible Deductions (₹)</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">₹</span>
-                            </div>
-                            <input type="number" id="other-deductions" name="other-deductions" 
-                                class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-2 sm:text-md border-gray-300 rounded-md"
-                                placeholder="0" min="0" step="1000">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">Family pension, disability allowance, etc.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- All deduction sections have been removed for simplified calculation -->
         </div>
 
         <div id="results" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
@@ -104,8 +54,18 @@
             </div>
 
             <div class="mb-4">
-                <h3 class="text-lg font-medium text-gray-800 mb-3">Your Tax Breakdown</h3>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-medium text-gray-800">Your Tax Breakdown</h3>
+                    <button id="toggle-tax-details" class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors">
+                        Show Details
+                    </button>
+                </div>
                 <div id="tax-breakdown" class="text-sm space-y-2 bg-gray-50 p-4 rounded-lg"></div>
+                
+                <div id="tax-details-section" class="mt-4 hidden">
+                    <h4 class="text-md font-medium text-gray-700 mb-2">Tax Calculation by Slabs</h4>
+                    <div id="tax-slab-details" class="bg-white border border-gray-200 rounded-lg p-3 text-sm"></div>
+                </div>
             </div>
         </div>
 
@@ -164,8 +124,85 @@
             </div>
         </div>
 
+        <!-- New FAQ Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div class="faq-item">
+                    <button class="faq-question w-full flex justify-between items-center text-left py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <span class="font-medium text-gray-800">What is the Income Tax Calculator?</span>
+                        <svg class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer hidden px-4 pt-2 pb-4">
+                        <p class="text-gray-600">This Income Tax Calculator is a free tool to calculate taxes on your income using the most up-to-date tax brackets for FY 2025-26. It helps you understand your tax liability under the new tax regime.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question w-full flex justify-between items-center text-left py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <span class="font-medium text-gray-800">How can I use this Income Tax Calculator?</span>
+                        <svg class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer hidden px-4 pt-2 pb-4">
+                        <p class="text-gray-600">Simply enter your annual income in lakhs (e.g., enter 12.75 for ₹12,75,000), specify if you're a salaried employee, add any eligible deductions if applicable, and click "Calculate Tax" to see your tax liability and breakdown.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question w-full flex justify-between items-center text-left py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <span class="font-medium text-gray-800">What are the income tax slabs for FY 2025-26?</span>
+                        <svg class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer hidden px-4 pt-2 pb-4">
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>₹0 to ₹4,00,000: 0%</li>
+                            <li>₹4,00,001 to ₹8,00,000: 5%</li>
+                            <li>₹8,00,001 to ₹12,00,000: 10%</li>
+                            <li>₹12,00,001 to ₹16,00,000: 15%</li>
+                            <li>₹16,00,001 to ₹20,00,000: 20%</li>
+                            <li>₹20,00,001 to ₹24,00,000: 25%</li>
+                            <li>Above ₹24,00,000: 30%</li>
+                        </ul>
+                        <p class="mt-2 text-gray-600">Additionally, a rebate of up to ₹60,000 under Section 87A is available if your net taxable income is up to ₹12,00,000.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question w-full flex justify-between items-center text-left py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <span class="font-medium text-gray-800">What deductions are available under the new tax regime?</span>
+                        <svg class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer hidden px-4 pt-2 pb-4">
+                        <p class="text-gray-600">This simplified tax calculator only considers the standard deduction of ₹75,000 for salaried individuals. We've removed all other deductions to make the calculation simpler and more straightforward.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question w-full flex justify-between items-center text-left py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <span class="font-medium text-gray-800">What is the standard deduction for FY 2025-26?</span>
+                        <svg class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer hidden px-4 pt-2 pb-4">
+                        <p class="text-gray-600">The standard deduction for salaried individuals under the new tax regime for FY 2025-26 is ₹75,000. This amount is automatically deducted from your taxable income if you are a salaried employee.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer class="mt-8 text-center text-gray-500 text-sm">
-            <p>This calculator is for informational purposes only. Tax laws are subject to change.</p>
+            <p class="mb-2">This calculator is for informational purposes only. Tax laws are subject to change.</p>
+            <p>Always consult a tax professional for specific advice regarding your tax situation.</p>
         </footer>
     </div>
 

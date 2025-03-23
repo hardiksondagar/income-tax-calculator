@@ -38,31 +38,6 @@ input:focus {
     outline: none;
 }
 
-/* Button animation */
-#calculate-btn {
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-}
-
-#calculate-btn:after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    width: 300%;
-    height: 300%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    z-index: -1;
-    transition: transform 0.4s ease-out;
-}
-
-#calculate-btn:hover:after {
-    transform: translate(-50%, -50%) scale(1);
-}
-
 /* Chart styling */
 canvas {
     max-width: 100%;
@@ -89,4 +64,77 @@ canvas {
         transform: scale(0.95);
         box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
     }
+}
+
+/* FAQ Section Styling */
+.faq-item {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.faq-question:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.faq-question.active svg {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    background-color: #f9fafb;
+    transition: all 0.3s ease;
+}
+
+/* Tax breakdown details */
+#tax-details-section {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
+}
+
+#tax-details-section.show {
+    opacity: 1;
+    max-height: 500px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+    .bg-white.rounded-xl.shadow-lg:hover {
+        transform: none;
+    }
+    
+    /* Keep cards from enlarging on mobile */
+    .bg-white.rounded-xl.shadow-lg {
+        margin-bottom: 1rem;
+    }
+    
+    /* Make buttons more touchable */
+    .faq-question {
+        padding: 0.75rem;
+    }
+}
+
+/* Show details button hover effect */
+#toggle-tax-details {
+    position: relative;
+}
+
+#toggle-tax-details:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: currentColor;
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+#toggle-tax-details:hover:after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
 } 

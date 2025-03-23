@@ -2,15 +2,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
     const incomeInput = document.getElementById('income');
     const isSalariedCheckbox = document.getElementById('is-salaried');
-    const showAdditionalDeductionsCheckbox = document.getElementById('show-additional-deductions');
-    const additionalDeductionsSection = document.getElementById('additional-deductions-section');
-    const npsEmployerContribInput = document.getElementById('nps-employer-contrib');
-    const housingLoanInterestInput = document.getElementById('housing-loan-interest');
-    const otherDeductionsInput = document.getElementById('other-deductions');
     const resultsSection = document.getElementById('results');
     const taxAmountSpan = document.getElementById('tax-amount');
     const taxBreakdownDiv = document.getElementById('tax-breakdown');
     const taxChart = document.getElementById('tax-chart');
+    const toggleTaxDetailsBtn = document.getElementById('toggle-tax-details');
+    const taxDetailsSection = document.getElementById('tax-details-section');
+    const taxSlabDetailsDiv = document.getElementById('tax-slab-details');
 
     // Tax slabs for FY 2025-26
     const taxSlabs = [
@@ -38,23 +36,50 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Toggle additional deductions section
-    showAdditionalDeductionsCheckbox.addEventListener('change', function() {
-        additionalDeductionsSection.classList.toggle('hidden', !this.checked);
-        if (!this.checked) {
-            npsEmployerContribInput.value = '';
-            housingLoanInterestInput.value = '';
-            otherDeductionsInput.value = '';
+    // Toggle tax details section
+    toggleTaxDetailsBtn.addEventListener('click', function() {
+        const isHidden = taxDetailsSection.classList.contains('hidden');
+        
+        if (isHidden) {
+            taxDetailsSection.classList.remove('hidden');
+            setTimeout(() => taxDetailsSection.classList.add('show'), 10);
+            this.textContent = 'Hide Details';
+        } else {
+            taxDetailsSection.classList.remove('show');
+            setTimeout(() => taxDetailsSection.classList.add('hidden'), 300);
+            this.textContent = 'Show Details';
         }
-        calculateTax(); // Auto-calculate when toggling deductions
+    });
+
+    // Set up FAQ toggles
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const answer = this.nextElementSibling;
+            const isHidden = answer.classList.contains('hidden');
+            
+            // Close all other answers
+            document.querySelectorAll('.faq-answer').forEach(el => {
+                if (el !== answer) {
+                    el.classList.add('hidden');
+                }
+            });
+            
+            document.querySelectorAll('.faq-question').forEach(el => {
+                if (el !== this) {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // Toggle this answer
+            answer.classList.toggle('hidden', !isHidden);
+            this.classList.toggle('active', isHidden);
+        });
     });
 
     // Auto-calculate tax on input changes - with debounce for text inputs
     const debouncedCalculate = debounce(calculateTax);
     incomeInput.addEventListener('input', debouncedCalculate);
-    npsEmployerContribInput.addEventListener('input', debouncedCalculate);
-    housingLoanInterestInput.addEventListener('input', debouncedCalculate);
-    otherDeductionsInput.addEventListener('input', debouncedCalculate);
     
     // Immediate calculate for checkbox changes
     isSalariedCheckbox.addEventListener('change', calculateTax);
@@ -76,19 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const incomeInLakhs = parseFloat(incomeInput.value) || 0;
         const income = incomeInLakhs * LAKH_VALUE;
         
-        // Get deduction values
+        // Get standard deduction if applicable
         const isSalaried = isSalariedCheckbox.checked;
-        const npsEmployerContrib = parseFloat(npsEmployerContribInput.value) || 0;
-        const housingLoanInterest = parseFloat(housingLoanInterestInput.value) || 0;
-        const otherDeductions = parseFloat(otherDeductionsInput.value) || 0;
-        
-        // Calculate total deductions
         const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
-        const additionalDeductions = npsEmployerContrib + housingLoanInterest + otherDeductions;
-        const totalDeductions = standardDeduction + additionalDeductions;
         
-        // Calculate taxable income
-        const taxableIncome = Math.max(0, income - totalDeductions);
+        // Calculate taxable income (only standard deduction)
+        const taxableIncome = Math.max(0, income - standardDeduction);
         
         // Calculate tax amount
         const taxAmount = calculateTaxAmount(taxableIncome);
@@ -101,7 +119,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('effective-rate').textContent = effectiveRate + '% effective rate';
         
         // Show tax breakdown
-        generateTaxBreakdown(taxableIncome, standardDeduction, additionalDeductions);
+        generateTaxBreakdown(taxableIncome, standardDeduction, income);
+        
+        // Generate tax slabs details
+        generateTaxSlabDetails(taxableIncome);
         
         // Generate and display tax chart
         generateTaxChart();
@@ -138,14 +159,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Generate tax breakdown
-    function generateTaxBreakdown(taxableIncome, standardDeduction, additionalDeductions) {
+    function generateTaxBreakdown(taxableIncome, standardDeduction, income) {
         // Clear previous breakdown
         taxBreakdownDiv.innerHTML = '';
         
         // Add income and deduction details
-        const incomeInLakhs = parseFloat(incomeInput.value) || 0;
-        const income = incomeInLakhs * LAKH_VALUE;
-        
         let breakdownHTML = `
             <div class="flex justify-between">
                 <span>Total Income:</span>
@@ -161,40 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="font-medium text-green-600">- ${formatCurrency(standardDeduction)}</span>
                 </div>
             `;
-        }
-        
-        // Add detailed deductions if any
-        if (additionalDeductions > 0) {
-            const npsContrib = parseFloat(npsEmployerContribInput.value) || 0;
-            const housingInterest = parseFloat(housingLoanInterestInput.value) || 0;
-            const otherDeducts = parseFloat(otherDeductionsInput.value) || 0;
-            
-            if (npsContrib > 0) {
-                breakdownHTML += `
-                    <div class="flex justify-between text-xs">
-                        <span>Employer's NPS Contribution:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(npsContrib)}</span>
-                    </div>
-                `;
-            }
-            
-            if (housingInterest > 0) {
-                breakdownHTML += `
-                    <div class="flex justify-between text-xs">
-                        <span>Home Loan Interest:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(housingInterest)}</span>
-                    </div>
-                `;
-            }
-            
-            if (otherDeducts > 0) {
-                breakdownHTML += `
-                    <div class="flex justify-between text-xs">
-                        <span>Other Deductions:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(otherDeducts)}</span>
-                    </div>
-                `;
-            }
         }
         
         // Add taxable income
@@ -280,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         taxBreakdownDiv.innerHTML = breakdownHTML;
     }
     
-    // Generate tax chart
+    // Generate tax chart - simplified to only use income with standard deduction
     function generateTaxChart() {
         // Generate data points for the chart
         const dataPoints = [];
@@ -293,17 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isSalariedForGraph = incomeInput.value ? isSalariedCheckbox.checked : true;
             const standardDeduction = isSalariedForGraph ? STANDARD_DEDUCTION : 0;
             
-            // Get additional deductions - only use if user has entered values
-            let additionalDeductions = 0;
-            if (incomeInput.value) {
-                const npsContrib = parseFloat(npsEmployerContribInput.value) || 0;
-                const housingInterest = parseFloat(housingLoanInterestInput.value) || 0;
-                const otherDeducts = parseFloat(otherDeductionsInput.value) || 0;
-                additionalDeductions = npsContrib + housingInterest + otherDeducts;
-            }
-            
-            const totalDeductions = standardDeduction + additionalDeductions;
-            const taxableIncome = Math.max(0, income - totalDeductions);
+            const taxableIncome = Math.max(0, income - standardDeduction);
             const tax = calculateTaxAmount(taxableIncome);
             
             dataPoints.push({
@@ -421,14 +395,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Helper function to format currency
+
+    // FORMAT CURRENCY FUNCTION - Formatting numbers as currency with commas for thousands
     function formatCurrency(amount) {
-        return '₹' + amount.toLocaleString('en-IN', {
+        // Round to 2 decimal places
+        amount = Math.round(amount * 100) / 100;
+        
+        // Format with comma separators for Indian numbering system
+        const formatter = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
             maximumFractionDigits: 0
         });
+        
+        return formatter.format(amount);
     }
-    
+
     // Helper function to format currency in short form
     function formatCurrencyShort(amount) {
         if (amount >= 10000000) {
@@ -440,5 +423,86 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             return '₹' + amount;
         }
+    }
+
+    // Generate detailed tax slab breakdown
+    function generateTaxSlabDetails(taxableIncome) {
+        let detailsHTML = '<table class="w-full text-sm">';
+        detailsHTML += `
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Income Range</th>
+                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Rate</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Tax Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        let totalSlabTax = 0;
+        
+        for (const slab of taxSlabs) {
+            let slabIncome = 0;
+            let slabTax = 0;
+            
+            if (taxableIncome > slab.min) {
+                slabIncome = Math.min(taxableIncome, slab.max) - slab.min;
+                slabTax = slabIncome * slab.rate;
+                totalSlabTax += slabTax;
+            }
+            
+            const slabRangeText = slab.max === Infinity 
+                ? `Above ${formatCurrency(slab.min)}`
+                : `${formatCurrency(slab.min)} to ${formatCurrency(slab.max)}`;
+            
+            const activeClass = (taxableIncome > slab.min && taxableIncome <= slab.max) ? 'bg-indigo-50' : '';
+            
+            detailsHTML += `
+                <tr class="${activeClass}">
+                    <td class="px-3 py-2 whitespace-nowrap">${slabRangeText}</td>
+                    <td class="px-3 py-2 text-center">${(slab.rate * 100)}%</td>
+                    <td class="px-3 py-2 text-right">${formatCurrency(slabTax)}</td>
+                </tr>
+            `;
+        }
+        
+        // Apply rebate under Section 87A
+        let rebate = 0;
+        if (taxableIncome <= REBATE_LIMIT && totalSlabTax > 0) {
+            rebate = Math.min(totalSlabTax, MAX_REBATE);
+            totalSlabTax = Math.max(0, totalSlabTax - rebate);
+            
+            detailsHTML += `
+                <tr class="bg-green-50">
+                    <td class="px-3 py-2" colspan="2">Rebate u/s 87A (for income up to ₹12L)</td>
+                    <td class="px-3 py-2 text-right text-green-600">- ${formatCurrency(rebate)}</td>
+                </tr>
+            `;
+        }
+        
+        // Add health and education cess
+        const cess = totalSlabTax * 0.04;
+        detailsHTML += `
+            <tr>
+                <td class="px-3 py-2" colspan="2">Health & Education Cess @ 4%</td>
+                <td class="px-3 py-2 text-right">${formatCurrency(cess)}</td>
+            </tr>
+        `;
+        
+        // Total tax liability
+        const totalTax = totalSlabTax + cess;
+        detailsHTML += `
+            </tbody>
+            <tfoot>
+                <tr class="bg-gray-50">
+                    <td class="px-3 py-2 font-medium" colspan="2">Total Tax Liability</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatCurrency(totalTax)}</td>
+                </tr>
+            </tfoot>
+        `;
+        
+        detailsHTML += '</table>';
+        
+        taxSlabDetailsDiv.innerHTML = detailsHTML;
     }
 }); 
