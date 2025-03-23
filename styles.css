@@ -224,6 +224,13 @@ canvas {
     color: #6b7280;
 }
 
+.preview-card .monthly-salary {
+    font-size: 0.875rem;
+    color: #047857;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
 .preview-card.zero-tax {
     background-color: #f0fdf4;
     border-color: #bbf7d0;

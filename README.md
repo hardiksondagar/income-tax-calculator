@@ -7,10 +7,14 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 - **Simple & Modern UI**: Clean, intuitive interface with smooth animations and responsive design.
 - **Tax Calculation**: Calculate tax liability based on the new tax regime slabs.
 - **Income in Lakhs**: Input your income in lakhs for easier entry of large numbers.
-- **Detailed Deductions**: Specific fields for various eligible deductions under the new tax regime.
+- **Standard Deduction**: Automatic ₹75,000 deduction for salaried employees.
 - **Visual Representation**: Interactive graph showing tax liability vs. income.
 - **Detailed Breakdown**: Itemized breakdown of tax calculations across different slabs.
 - **Rebate Consideration**: Automatic application of rebate under Section 87A (up to ₹60,000).
+- **Financial Summary**: Combined view of tax liability and monthly take-home salary.
+- **Example Calculations**: Quick reference tax examples at different income levels.
+- **Interactive FAQ Section**: Common questions about income tax calculation.
+- **Responsive Design**: Works on mobile, tablet, and desktop devices.
 
 ## Tax Slabs (FY 2025-26)
 
@@ -33,25 +37,40 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 ## Available Deductions Under New Regime
 
 - **Standard Deduction**: Automatic ₹75,000 for salaried individuals.
-- **Employer's NPS Contribution**: Up to 14% of salary for government employees, 10% for others.
-- **Home Loan Interest**: For self-occupied property, especially for first-time home buyers.
-- **Other Eligible Deductions**: Family pension, disability allowance, etc.
+
+*Note: This simplified calculator currently only implements the standard deduction for salaried employees. The full version of the new tax regime allows for additional specific deductions which may be added in future updates.*
 
 ## How to Use
 
 1. Enter your annual income in lakhs (e.g., enter 12.75 for ₹12,75,000).
 2. Check/uncheck the salaried employee option (applies ₹75,000 standard deduction).
-3. Optionally, add any additional deductions by checking the "I have additional deductions" box.
-4. Click "Calculate Tax" to view your tax liability and breakdown.
-5. Review the visual graph to understand how tax changes with income.
+3. Click "Calculate Tax" to view your tax liability and breakdown.
+4. Review the visual graph to understand how tax changes with income.
+5. Explore example calculations and tax slabs for reference.
+6. Check the FAQ section for answers to common questions.
 
 ## Technologies Used
 
 - HTML5
-- CSS3 (with Tailwind CSS)
-- JavaScript
-- Chart.js for visualization
+- CSS3 (with Tailwind CSS framework)
+- JavaScript (Vanilla JS)
+- Chart.js for data visualization
+- Google Fonts (Inter)
 
 ## Disclaimer
 
 This calculator is for informational purposes only and should not be considered as tax advice. Tax laws are subject to change, and you should consult a tax professional for specific advice. 
+
+## Planned Features
+
+- [ ] Income slider with visual feedback alongside numerical input
+- [ ] Net income visualization - pie chart showing tax vs take-home amount
+- [x] Monthly take-home calculator showing post-tax monthly salary
+- [ ] Old vs new tax regime comparison tool
+- [ ] Tax saving recommendations based on income bracket
+- [ ] Dark mode toggle for better accessibility
+- [ ] Salary structure optimizer - suggest optimal CTC breakdown
+- [ ] Save or share calculation results (via URL parameters or export)
+- [ ] Local storage to remember user's last calculation
+- [ ] Progressive disclosure - hide advanced features until needed
+- [ ] Mobile-optimized compact view with simplified controls 

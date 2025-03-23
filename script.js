@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const taxDetailsSection = document.getElementById('tax-details-section');
     const taxSlabDetailsDiv = document.getElementById('tax-slab-details');
     const exampleCardsContainer = document.getElementById('example-cards-container');
+    const monthlySalarySpan = document.getElementById('monthly-salary');
+    const annualTakeHomeSpan = document.getElementById('annual-take-home');
 
     // Example income values in lakhs
     const exampleIncomes = [
@@ -66,6 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const tax = calculateTaxAmount(taxableIncome);
             const effectiveRate = incomeInRupees > 0 ? (tax / incomeInRupees * 100).toFixed(1) : 0;
             
+            // Calculate monthly take-home
+            const annualTakeHome = incomeInRupees - tax;
+            const monthlyTakeHome = annualTakeHome / 12;
+            
             // Determine card style class
             let cardClass = 'preview-card';
             if (tax === 0) {
@@ -81,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="income">${income.label}</div>
                 <div class="tax">${formatCurrency(tax)}</div>
                 <div class="percentage">${effectiveRate}% of income</div>
+                <div class="monthly-salary text-sm text-green-600">${formatCurrencyShort(monthlyTakeHome)}/month</div>
             `;
             
             // Add click event to set this income in the calculator
@@ -180,9 +187,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calculate effective tax rate
         const effectiveRate = income > 0 ? (taxAmount / income * 100).toFixed(2) : 0;
         
+        // Calculate annual and monthly take-home salary
+        const annualTakeHome = income - taxAmount;
+        const monthlyTakeHome = annualTakeHome / 12;
+        
         // Display result
         taxAmountSpan.textContent = formatCurrency(taxAmount);
         document.getElementById('effective-rate').textContent = effectiveRate + '% effective rate';
+        
+        // Display monthly and annual take-home salary
+        monthlySalarySpan.textContent = formatCurrency(monthlyTakeHome);
+        annualTakeHomeSpan.textContent = formatCurrency(annualTakeHome) + ' annually';
         
         // Show tax breakdown
         generateTaxBreakdown(taxableIncome, standardDeduction, income);
