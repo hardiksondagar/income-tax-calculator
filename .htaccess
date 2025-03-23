@@ -1,0 +1,8 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Rewrite SEO-friendly tax calculator URLs to index.html
+RewriteRule ^tax-calculator/income/([0-9.]+)-lakhs(/salaried)?(/amount/[0-9]+)?$ index.html?income=$1lakhs&salaried=$2&amount=$3 [L,QSA]
+
+# Handle 404 errors by redirecting to index.html
+ErrorDocument 404 /index.html

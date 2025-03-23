@@ -335,4 +335,66 @@ input[type="range"]::-moz-range-thumb:active {
     border-radius: 2px;
     top: -4px;
     transition: left 0.2s, width 0.2s;
+}
+
+/* Share button and section styles */
+#share-result-btn {
+    transition: all 0.2s ease-in-out;
+}
+
+#share-result-btn:hover svg {
+    transform: rotate(-10deg);
+}
+
+#share-result-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes copy-success {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+#share-result-btn.copied svg {
+    animation: copy-success 0.5s ease-in-out;
+}
+
+/* Copy tooltip */
+.copy-tooltip {
+    position: absolute;
+    background-color: rgba(79, 70, 229, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.copy-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.copy-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(79, 70, 229, 0.9) transparent transparent transparent;
+}
+
+/* Mobile responsive share section */
+@media (max-width: 768px) {
+    #share-result-btn {
+        width: 100%;
+        justify-content: center;
+    }
 } 

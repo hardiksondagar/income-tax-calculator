@@ -169,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const value = parseFloat(this.value);
             incomeInput.value = value;
             updateSliderValue(value);
-            debouncedCalculate();
         });
 
         // Show tooltip when dragging slider
@@ -221,21 +220,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Auto-calculate tax on input changes - with debounce for text inputs
-    const debouncedCalculate = debounce(calculateTax);
+    const debouncedCalculate = debounce(function() {
+        calculateTax();
+        // Scroll to results if there's a valid income
+        if (parseFloat(incomeInput.value) > 0) {
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+
     incomeInput.addEventListener('input', debouncedCalculate);
     
     // Immediate calculate for checkbox changes and update example cards
     isSalariedCheckbox.addEventListener('change', function() {
         calculateTax();
         updateExampleCards();
+        // Scroll to results if there's a valid income
+        if (parseFloat(incomeInput.value) > 0) {
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
     });
 
-    // Calculate tax button click handler
-    const calculateTaxBtn = document.getElementById('calculate-tax-btn');
-    calculateTaxBtn.addEventListener('click', function() {
-        calculateTax();
-        // Scroll to results
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    // Income slider handling should also trigger calculation
+    incomeSlider.addEventListener('change', function() {
+        debouncedCalculate();
     });
 
     // Initial calculation when page loads
@@ -246,6 +253,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Generate example cards
         updateExampleCards();
         
+        // Check URL for shared calculation
+        loadCalculationFromURL();
+        
         // Only calculate if there's an income value (to avoid showing 0 on initial load)
         if (incomeInput.value) {
             calculateTax();
@@ -254,6 +264,84 @@ document.addEventListener('DOMContentLoaded', function() {
             generateTaxChart();
         }
     });
+
+    // Load calculation from URL parameters
+    function loadCalculationFromURL() {
+        // First check query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        let foundParams = false;
+        
+        // Check for income parameter
+        if(urlParams.has('income')) {
+            // Parse income, handling the "lakhs" suffix if present
+            let incomeParam = urlParams.get('income');
+            // Remove "lakhs" suffix if present
+            incomeParam = incomeParam.replace(/lakhs$/, '').trim();
+            
+            const income = parseFloat(incomeParam);
+            if(!isNaN(income)) {
+                incomeInput.value = income;
+                incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
+                updateSliderValue(incomeSlider.value);
+                foundParams = true;
+            }
+        }
+        
+        // Check for salaried parameter
+        if(urlParams.has('salaried')) {
+            const salaried = urlParams.get('salaried') === 'true' || urlParams.get('salaried') === '/salaried';
+            isSalariedCheckbox.checked = salaried;
+            foundParams = true;
+        }
+        
+        // If no params found in query, check the URL path (only works if server has URL rewriting)
+        if (!foundParams) {
+            const path = window.location.pathname;
+            const pathMatch = path.match(/\/tax-calculator\/income\/([0-9.]+)(-lakhs)?(\/salaried)?(\/amount\/\d+)?/);
+            
+            if (pathMatch) {
+                // Parse income from path
+                const income = parseFloat(pathMatch[1]);
+                if (!isNaN(income)) {
+                    incomeInput.value = income;
+                    incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
+                    updateSliderValue(incomeSlider.value);
+                }
+                
+                // Check if salaried is in path
+                const isSalaried = pathMatch[3] !== undefined;
+                isSalariedCheckbox.checked = isSalaried;
+            }
+        }
+    }
+    
+    // Update URL with calculation parameters
+    function updateURLWithCalculation(income, isSalaried, taxAmount) {
+        // Format values for URL
+        const formattedIncome = parseFloat(income).toFixed(2).replace(/\.00$/, '');
+        const formattedTax = Math.round(taxAmount);
+        
+        // Create URL parameters for sharing
+        const params = new URLSearchParams();
+        params.set('income', formattedIncome + 'lakhs'); // Add "lakhs" suffix
+        params.set('salaried', isSalaried);
+        params.set('tax', formattedTax);
+        
+        // Create SEO-friendly URL path (for sharing in text)
+        let seoPath = `/tax-calculator/income/${formattedIncome}-lakhs`; // Add "lakhs" here too
+        if(isSalaried) {
+            seoPath += '/salaried';
+        }
+        seoPath += `/amount/${formattedTax}`;
+        
+        // Use query parameters in the browser for reliability
+        const queryUrl = `?${params.toString()}`;
+        window.history.replaceState({}, '', queryUrl);
+        
+        // Return the SEO-friendly URL for sharing
+        // This URL will work if the server has proper URL rewriting configured
+        return window.location.origin + seoPath;
+    }
 
     // Calculate tax function
     function calculateTax() {
@@ -304,6 +392,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show results section if income is entered
         if (income > 0) {
             resultsSection.classList.remove('hidden');
+            
+            // Update URL with calculation parameters if income is valid
+            updateURLWithCalculation(incomeInLakhs, isSalaried, taxAmount);
+            
+            // Add share button if not already present
+            if (!document.getElementById('share-result-btn')) {
+                addShareButton();
+            }
         } else {
             resultsSection.classList.add('hidden');
         }
@@ -678,5 +774,134 @@ document.addEventListener('DOMContentLoaded', function() {
         detailsHTML += '</table>';
         
         taxSlabDetailsDiv.innerHTML = detailsHTML;
+    }
+
+    // Add share button to results
+    function addShareButton() {
+        // Create share section div
+        const shareSection = document.createElement('div');
+        shareSection.className = 'mt-6 flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 bg-indigo-50 p-4 rounded-lg';
+        
+        // Create share text
+        const shareText = document.createElement('div');
+        shareText.className = 'text-sm text-indigo-800';
+        shareText.textContent = 'Share this calculation with others:';
+        
+        // Create share button
+        const shareBtn = document.createElement('button');
+        shareBtn.id = 'share-result-btn';
+        shareBtn.className = 'bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors shadow-md flex items-center space-x-2';
+        shareBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            <span>Share Result</span>
+        `;
+        
+        // Handle share button click
+        shareBtn.addEventListener('click', shareResult);
+        
+        // Add elements to share section
+        shareSection.appendChild(shareText);
+        shareSection.appendChild(shareBtn);
+        
+        // Add share section to results section
+        resultsSection.appendChild(shareSection);
+    }
+    
+    // Share result function - handles both copy to clipboard and native sharing
+    function shareResult() {
+        const incomeInLakhs = parseFloat(incomeInput.value) || 0;
+        const isSalaried = isSalariedCheckbox.checked;
+        const taxAmount = parseFloat(taxAmountSpan.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+        
+        // Get the shareable URL
+        const shareableUrl = updateURLWithCalculation(incomeInLakhs, isSalaried, taxAmount);
+        
+        // Create share data object
+        const shareData = {
+            title: 'Income Tax Calculator FY 2025-26',
+            text: `Check my income tax calculation for ₹${incomeInLakhs} lakhs (${formatCurrency(incomeInLakhs * LAKH_VALUE)}): ${taxAmountSpan.textContent}`,
+            url: shareableUrl
+        };
+        
+        // Try to use Web Share API if available
+        if (navigator.share) {
+            navigator.share(shareData)
+            .catch(error => {
+                console.log('Error sharing:', error);
+                copyToClipboard(shareableUrl);
+            });
+        } else {
+            // Fallback to clipboard copy
+            copyToClipboard(shareableUrl);
+        }
+    }
+    
+    // Copy URL to clipboard and show feedback
+    function copyToClipboard(text) {
+        const shareBtn = document.getElementById('share-result-btn');
+        const originalText = shareBtn.innerHTML;
+        
+        // Try to use the modern Clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showCopySuccess(shareBtn, originalText);
+                })
+                .catch(() => {
+                    // Fallback to the older method if Clipboard API fails
+                    fallbackCopyToClipboard(text, shareBtn, originalText);
+                });
+        } else {
+            // Use fallback for browsers without Clipboard API
+            fallbackCopyToClipboard(text, shareBtn, originalText);
+        }
+    }
+    
+    // Fallback method for copying to clipboard
+    function fallbackCopyToClipboard(text, shareBtn, originalText) {
+        try {
+            // Create a temporary input element
+            const input = document.createElement('input');
+            input.style.position = 'fixed';
+            input.style.opacity = 0;
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+            
+            // Copy the text
+            const successful = document.execCommand('copy');
+            document.body.removeChild(input);
+            
+            if (successful) {
+                showCopySuccess(shareBtn, originalText);
+            } else {
+                console.error('Failed to copy');
+            }
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    }
+    
+    // Show copy success feedback
+    function showCopySuccess(shareBtn, originalText) {
+        // Add the class for animation
+        shareBtn.classList.add('copied');
+        
+        // Change button text and icon
+        shareBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>URL Copied!</span>
+        `;
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            shareBtn.innerHTML = originalText;
+            shareBtn.classList.remove('copied');
+        }, 2000);
     }
 }); 

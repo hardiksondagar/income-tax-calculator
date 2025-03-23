@@ -15,6 +15,7 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 - **Example Calculations**: Quick reference tax examples at different income levels.
 - **Interactive FAQ Section**: Common questions about income tax calculation.
 - **Responsive Design**: Works on mobile, tablet, and desktop devices.
+- **Shareable Results**: Save or share calculation results via URL parameters for easy sharing and bookmarking.
 
 ## Tax Slabs (FY 2025-26)
 
@@ -44,10 +45,15 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 
 1. Enter your annual income in lakhs (e.g., enter 12.75 for ₹12,75,000).
 2. Check/uncheck the salaried employee option (applies ₹75,000 standard deduction).
-3. Click "Calculate Tax" to view your tax liability and breakdown.
+3. Your tax liability and breakdown will automatically calculate and display as you make changes.
 4. Review the visual graph to understand how tax changes with income.
 5. Explore example calculations and tax slabs for reference.
 6. Check the FAQ section for answers to common questions.
+7. Share your calculation with others using the "Share Result" button. This creates a link that anyone can use to see your tax calculation.
+
+### Server Configuration for SEO-friendly URLs
+
+If you're running this calculator on a web server with Apache, you can enable the included .htaccess file for clean, SEO-friendly URLs. This allows URLs in the format of `/tax-calculator/income/12.5/salaried/amount/137500` to work directly.
 
 ## Technologies Used
 
@@ -70,7 +76,7 @@ This calculator is for informational purposes only and should not be considered 
 - [ ] Tax saving recommendations based on income bracket
 - [ ] Dark mode toggle for better accessibility
 - [ ] Salary structure optimizer - suggest optimal CTC breakdown
-- [ ] Save or share calculation results (via URL parameters or export)
+- [x] Save or share calculation results (via URL parameters or export)
 - [ ] Local storage to remember user's last calculation
 - [ ] Progressive disclosure - hide advanced features until needed
 - [ ] Mobile-optimized compact view with simplified controls 
