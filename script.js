@@ -985,8 +985,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Generate data points for the chart
         const dataPoints = [];
-        const maxIncomeInLakhs = 30; // 30 lakhs
-        const step = 1; // 1 lakh
+        const maxIncomeInLakhs = 100; // 30 lakhs
+        const step = 2.5; // 1 lakh
         
         for (let incomeInLakhs = 0; incomeInLakhs <= maxIncomeInLakhs; incomeInLakhs += step) {
             const income = incomeInLakhs * LAKH_VALUE;
