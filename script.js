@@ -16,6 +16,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const monthlySalarySpan = document.getElementById('monthly-salary');
     const annualTakeHomeSpan = document.getElementById('annual-take-home');
     
+    // Tax regime selector elements
+    const financialYearSelect = document.getElementById('financial-year');
+    const taxRegimeSelect = document.getElementById('tax-regime');
+    const standardDeductionText = document.getElementById('standard-deduction-text');
+    const regimeTypeText = document.getElementById('regime-type-text');
+    const taxSlabsTable = document.getElementById('tax-slabs-table');
+    const taxSlabsRegimeYear = document.getElementById('tax-slabs-regime-year');
+    const newRegimeDeductions = document.getElementById('new-regime-deductions');
+    const oldRegimeDeductions = document.getElementById('old-regime-deductions');
+    
+    // Current regime and financial year state
+    let currentFinancialYear = financialYearSelect.value;
+    let currentRegime = taxRegimeSelect.value;
+    
     // Deduction elements
     const toggleDeductionsBtn = document.getElementById('toggle-deductions-btn');
     const deductionsSection = document.getElementById('deductions-section');
@@ -28,6 +42,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const hasEmployerContributionCheckbox = document.getElementById('has-employer-contribution');
     const employerContributionWrapper = document.getElementById('employer-contribution-wrapper');
     const employerContributionAmountInput = document.getElementById('employer-contribution-amount');
+    
+    // Old regime deduction elements
+    const hasSection80CCheckbox = document.getElementById('has-section-80c');
+    const section80CAmountWrapper = document.getElementById('section-80c-amount-wrapper');
+    const section80CAmountInput = document.getElementById('section-80c-amount');
+    const hasSection80DCheckbox = document.getElementById('has-section-80d');
+    const section80DAmountWrapper = document.getElementById('section-80d-amount-wrapper');
+    const section80DSelfAmountInput = document.getElementById('section-80d-self-amount');
+    const section80DParentsAmountInput = document.getElementById('section-80d-parents-amount');
+    const hasHomeLoanInterestCheckbox = document.getElementById('has-home-loan-interest');
+    const homeLoanInterestWrapper = document.getElementById('home-loan-interest-wrapper');
+    const homeLoanInterestAmountInput = document.getElementById('home-loan-interest-amount');
 
     // Example income values in lakhs
     const exampleIncomes = [
@@ -41,23 +67,100 @@ document.addEventListener('DOMContentLoaded', function() {
         { value: 50, label: '₹50 Lakhs' }
     ];
 
-    // Tax slabs for FY 2025-26
-    const taxSlabs = [
-        { min: 0, max: 400000, rate: 0 },
-        { min: 400000, max: 800000, rate: 0.05 },
-        { min: 800000, max: 1200000, rate: 0.10 },
-        { min: 1200000, max: 1600000, rate: 0.15 },
-        { min: 1600000, max: 2000000, rate: 0.20 },
-        { min: 2000000, max: 2400000, rate: 0.25 },
-        { min: 2400000, max: Infinity, rate: 0.30 }
-    ];
+    // Tax regime data for different financial years
+    const taxRegimeData = {
+        "2025-26": {
+            "new": {
+                "slabs": [
+                    { min: 0, max: 400000, rate: 0 },
+                    { min: 400000, max: 800000, rate: 0.05 },
+                    { min: 800000, max: 1200000, rate: 0.10 },
+                    { min: 1200000, max: 1600000, rate: 0.15 },
+                    { min: 1600000, max: 2000000, rate: 0.20 },
+                    { min: 2000000, max: 2400000, rate: 0.25 },
+                    { min: 2400000, max: Infinity, rate: 0.30 }
+                ],
+                "deductions": {
+                    "standard_deduction": 75000,
+                    "family_pension": 25000,
+                    "education_loan": true,
+                    "employer_contribution": 0.1
+                },
+                "rebate": {
+                    "limit": 1200000,
+                    "max": 60000
+                }
+            },
+            "old": {
+                "slabs": [
+                    { min: 0, max: 250000, rate: 0 },
+                    { min: 250000, max: 500000, rate: 0.05 },
+                    { min: 500000, max: 1000000, rate: 0.20 },
+                    { min: 1000000, max: Infinity, rate: 0.30 }
+                ],
+                "deductions": {
+                    "standard_deduction": 50000,
+                    "section_80c": 150000,
+                    "section_80d_self": 25000,
+                    "section_80d_parents": 50000,
+                    "home_loan_interest": 200000
+                },
+                "rebate": {
+                    "limit": 500000,
+                    "max": 12500
+                }
+            }
+        },
+        "2024-25": {
+            "new": {
+                "slabs": [
+                    { min: 0, max: 300000, rate: 0 },
+                    { min: 300000, max: 600000, rate: 0.05 },
+                    { min: 600000, max: 900000, rate: 0.10 },
+                    { min: 900000, max: 1200000, rate: 0.15 },
+                    { min: 1200000, max: 1500000, rate: 0.20 },
+                    { min: 1500000, max: 1800000, rate: 0.25 },
+                    { min: 1800000, max: Infinity, rate: 0.30 }
+                ],
+                "deductions": {
+                    "standard_deduction": 50000,
+                    "family_pension": 25000,
+                    "education_loan": true,
+                    "employer_contribution": 0.1
+                },
+                "rebate": {
+                    "limit": 700000,
+                    "max": 25000
+                }
+            },
+            "old": {
+                "slabs": [
+                    { min: 0, max: 250000, rate: 0 },
+                    { min: 250000, max: 500000, rate: 0.05 },
+                    { min: 500000, max: 1000000, rate: 0.20 },
+                    { min: 1000000, max: Infinity, rate: 0.30 }
+                ],
+                "deductions": {
+                    "standard_deduction": 50000,
+                    "section_80c": 150000,
+                    "section_80d_self": 25000,
+                    "section_80d_parents": 50000,
+                    "home_loan_interest": 200000
+                },
+                "rebate": {
+                    "limit": 500000,
+                    "max": 12500
+                }
+            }
+        }
+    };
 
     // Constants
+    const LAKH_VALUE = 100000; // 1 lakh = 100,000
+    const MAX_FAMILY_PENSION_DEDUCTION = 25000; // Max deduction for family pension
     const STANDARD_DEDUCTION = 75000;
     const REBATE_LIMIT = 1200000;
     const MAX_REBATE = 60000;
-    const LAKH_VALUE = 100000; // 1 lakh = 100,000
-    const MAX_FAMILY_PENSION_DEDUCTION = 25000; // Max deduction for family pension
     const EMPLOYER_CONTRIBUTION_LIMIT_PERCENTAGE = 0.1; // 10% of salary limit for employer contribution
 
     // Debounce function for input fields
@@ -74,6 +177,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear previous cards
         exampleCardsContainer.innerHTML = '';
         
+        // Get current tax regime data
+        const regimeData = getCurrentTaxRegimeData();
+        
         // Get salaried status
         const isSalaried = isSalariedCheckbox.checked;
         
@@ -83,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const incomeInRupees = income.value * LAKH_VALUE;
             
             // For example cards, only consider standard deduction to keep it simple
-            const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
+            const standardDeduction = isSalaried ? regimeData.deductions.standard_deduction : 0;
             const taxableIncome = Math.max(0, incomeInRupees - standardDeduction);
             const tax = calculateTaxAmount(taxableIncome);
             const effectiveRate = incomeInRupees > 0 ? (tax / incomeInRupees * 100).toFixed(1) : 0;
@@ -110,15 +216,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="monthly-salary text-sm text-green-600">${formatCurrencyShort(monthlyTakeHome)}/month</div>
             `;
             
-            // Add click event to set this income in the calculator
+            // Add click event to set income to this example
             card.addEventListener('click', function() {
                 incomeInput.value = income.value;
+                incomeSlider.value = Math.min(income.value, parseFloat(incomeSlider.max));
+                updateSliderValue(incomeSlider.value);
                 calculateTax();
-                // Scroll to results
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
             });
             
-            // Add card to container
             exampleCardsContainer.appendChild(card);
         });
     }
@@ -319,89 +424,131 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial calculation when page loads
     window.addEventListener('load', function() {
-        // Initialize slider functionality
-        initSlider();
-        
-        // Generate example cards
-        updateExampleCards();
-        
-        // Check URL for shared calculation
-        loadCalculationFromURL();
-        
         // Only calculate if there's an income value (to avoid showing 0 on initial load)
         if (incomeInput.value) {
             calculateTax();
         } else {
-            // Generate initial chart even without input
+            // Generate the tax chart anyway for the initial view
             generateTaxChart();
         }
     });
 
-    // Load calculation from URL
+    // Load calculation from URL parameters
     function loadCalculationFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const incomeParam = urlParams.get('income');
-        const salariedParam = urlParams.get('salaried');
-        
-        // Set income and salaried status if provided
-        if (incomeParam) {
-            const income = parseFloat(incomeParam);
-            if (!isNaN(income)) {
-                incomeInput.value = income;
-                incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
-                updateSliderValue(income);
+        if (window.location.search) {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Load financial year and regime if set
+            if (params.has('fy')) {
+                const fy = params.get('fy');
+                if (taxRegimeData.hasOwnProperty(fy)) {
+                    currentFinancialYear = fy;
+                    financialYearSelect.value = fy;
+                }
             }
-        }
-        
-        // Set salaried status
-        if (salariedParam === 'true' || salariedParam === 'false') {
-            isSalariedCheckbox.checked = salariedParam === 'true';
-        }
-        
-        // Set additional deduction parameters if provided
-        const fpParam = urlParams.get('fp');
-        if (fpParam === 'true') {
-            hasFamilyPensionCheckbox.checked = true;
-            familyPensionAmountWrapper.classList.remove('hidden');
-            const fpAmount = urlParams.get('fpAmount');
-            if (fpAmount) {
-                familyPensionAmountInput.value = fpAmount;
+            
+            if (params.has('regime')) {
+                const regime = params.get('regime');
+                if (regime === 'new' || regime === 'old') {
+                    currentRegime = regime;
+                    taxRegimeSelect.value = regime;
+                }
             }
-        }
-        
-        const elParam = urlParams.get('el');
-        if (elParam === 'true') {
-            hasEducationLoanCheckbox.checked = true;
-            educationLoanAmountWrapper.classList.remove('hidden');
-            const elAmount = urlParams.get('elAmount');
-            if (elAmount) {
-                educationLoanAmountInput.value = elAmount;
+            
+            // Update UI based on regime and year
+            updateUIForRegime();
+            
+            // Load income and salaried status
+            if (params.has('income')) {
+                incomeInput.value = params.get('income');
+                incomeSlider.value = Math.min(parseFloat(params.get('income')), parseFloat(incomeSlider.max));
+                updateSliderValue(incomeSlider.value);
             }
-        }
-        
-        const ecParam = urlParams.get('ec');
-        if (ecParam === 'true') {
-            hasEmployerContributionCheckbox.checked = true;
-            employerContributionWrapper.classList.remove('hidden');
-            const ecAmount = urlParams.get('ecAmount');
-            if (ecAmount) {
-                employerContributionAmountInput.value = ecAmount;
+            
+            if (params.has('salaried')) {
+                isSalariedCheckbox.checked = params.get('salaried') === 'true';
             }
-        }
-        
-        // Show deductions section if any deduction is active
-        if (fpParam === 'true' || elParam === 'true' || ecParam === 'true') {
-            deductionsSection.classList.remove('hidden');
-            toggleDeductionsBtn.innerHTML = `
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-                Hide Additional Deductions
-            `;
-        }
-        
-        // Calculate tax
-        if (incomeParam) {
+            
+            // Load deduction parameters based on regime
+            if (currentRegime === 'new') {
+                // Load family pension parameters
+                if (params.has('fp') && params.get('fp') === 'true') {
+                    hasFamilyPensionCheckbox.checked = true;
+                    familyPensionAmountWrapper.classList.remove('hidden');
+                    
+                    if (params.has('fpAmount')) {
+                        familyPensionAmountInput.value = params.get('fpAmount');
+                    }
+                }
+                
+                // Load education loan parameters
+                if (params.has('el') && params.get('el') === 'true') {
+                    hasEducationLoanCheckbox.checked = true;
+                    educationLoanAmountWrapper.classList.remove('hidden');
+                    
+                    if (params.has('elAmount')) {
+                        educationLoanAmountInput.value = params.get('elAmount');
+                    }
+                }
+                
+                // Load employer contribution parameters
+                if (params.has('ec') && params.get('ec') === 'true') {
+                    hasEmployerContributionCheckbox.checked = true;
+                    employerContributionWrapper.classList.remove('hidden');
+                    
+                    if (params.has('ecAmount')) {
+                        employerContributionAmountInput.value = params.get('ecAmount');
+                    }
+                }
+            } else {
+                // Load Section 80C parameters
+                if (params.has('80c') && params.get('80c') === 'true') {
+                    hasSection80CCheckbox.checked = true;
+                    section80CAmountWrapper.classList.remove('hidden');
+                    
+                    if (params.has('80cAmount')) {
+                        section80CAmountInput.value = params.get('80cAmount');
+                    }
+                }
+                
+                // Load Section 80D parameters
+                if (params.has('80d') && params.get('80d') === 'true') {
+                    hasSection80DCheckbox.checked = true;
+                    section80DAmountWrapper.classList.remove('hidden');
+                    
+                    if (params.has('80dSelf')) {
+                        section80DSelfAmountInput.value = params.get('80dSelf');
+                    }
+                    
+                    if (params.has('80dParents')) {
+                        section80DParentsAmountInput.value = params.get('80dParents');
+                    }
+                }
+                
+                // Load home loan interest parameters
+                if (params.has('hli') && params.get('hli') === 'true') {
+                    hasHomeLoanInterestCheckbox.checked = true;
+                    homeLoanInterestWrapper.classList.remove('hidden');
+                    
+                    if (params.has('hliAmount')) {
+                        homeLoanInterestAmountInput.value = params.get('hliAmount');
+                    }
+                }
+            }
+            
+            // Show deductions section if any deduction is checked
+            if (
+                hasFamilyPensionCheckbox.checked || 
+                hasEducationLoanCheckbox.checked || 
+                hasEmployerContributionCheckbox.checked ||
+                hasSection80CCheckbox.checked ||
+                hasSection80DCheckbox.checked ||
+                hasHomeLoanInterestCheckbox.checked
+            ) {
+                deductionsSection.classList.remove('hidden');
+            }
+            
+            // Calculate tax with loaded parameters
             calculateTax();
         }
     }
@@ -413,21 +560,41 @@ document.addEventListener('DOMContentLoaded', function() {
         params.set('income', income);
         params.set('salaried', isSalaried);
         params.set('tax', Math.round(taxAmount));
+        params.set('fy', currentFinancialYear);
+        params.set('regime', currentRegime);
         
-        // Add deduction parameters if applicable
-        if (hasFamilyPensionCheckbox.checked) {
-            params.set('fp', 'true');
-            params.set('fpAmount', familyPensionAmountInput.value);
-        }
-        
-        if (hasEducationLoanCheckbox.checked) {
-            params.set('el', 'true');
-            params.set('elAmount', educationLoanAmountInput.value);
-        }
-        
-        if (hasEmployerContributionCheckbox.checked) {
-            params.set('ec', 'true');
-            params.set('ecAmount', employerContributionAmountInput.value);
+        // Add deduction parameters based on regime
+        if (currentRegime === 'new') {
+            if (hasFamilyPensionCheckbox.checked) {
+                params.set('fp', 'true');
+                params.set('fpAmount', familyPensionAmountInput.value);
+            }
+            
+            if (hasEducationLoanCheckbox.checked) {
+                params.set('el', 'true');
+                params.set('elAmount', educationLoanAmountInput.value);
+            }
+            
+            if (hasEmployerContributionCheckbox.checked) {
+                params.set('ec', 'true');
+                params.set('ecAmount', employerContributionAmountInput.value);
+            }
+        } else {
+            if (hasSection80CCheckbox.checked) {
+                params.set('80c', 'true');
+                params.set('80cAmount', section80CAmountInput.value);
+            }
+            
+            if (hasSection80DCheckbox.checked) {
+                params.set('80d', 'true');
+                params.set('80dSelf', section80DSelfAmountInput.value);
+                params.set('80dParents', section80DParentsAmountInput.value);
+            }
+            
+            if (hasHomeLoanInterestCheckbox.checked) {
+                params.set('hli', 'true');
+                params.set('hliAmount', homeLoanInterestAmountInput.value);
+            }
         }
         
         // Update URL without reloading the page
@@ -447,44 +614,112 @@ document.addEventListener('DOMContentLoaded', function() {
             updateSliderValue(incomeSlider.value);
         }
         
+        // Get current tax regime data
+        const regimeData = getCurrentTaxRegimeData();
+        
         // Get standard deduction if applicable
         const isSalaried = isSalariedCheckbox.checked;
-        const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
+        const standardDeduction = isSalaried ? regimeData.deductions.standard_deduction : 0;
         
-        // Get additional deductions
+        // Get additional deductions based on regime
         let totalDeductions = standardDeduction;
         
-        // Family Pension Deduction (up to ₹25,000 or 1/3 of pension, whichever is less)
-        let familyPensionDeduction = 0;
-        if (hasFamilyPensionCheckbox.checked) {
-            const familyPensionAmount = parseFloat(familyPensionAmountInput.value) || 0;
-            const oneThirdPension = familyPensionAmount / 3;
-            familyPensionDeduction = Math.min(oneThirdPension, MAX_FAMILY_PENSION_DEDUCTION);
-            totalDeductions += familyPensionDeduction;
+        if (currentRegime === 'new') {
+            // Family Pension Deduction (up to ₹25,000 or 1/3 of pension, whichever is less)
+            let familyPensionDeduction = 0;
+            if (hasFamilyPensionCheckbox.checked) {
+                const familyPensionAmount = parseFloat(familyPensionAmountInput.value) || 0;
+                const oneThirdPension = familyPensionAmount / 3;
+                familyPensionDeduction = Math.min(oneThirdPension, regimeData.deductions.family_pension);
+                totalDeductions += familyPensionDeduction;
+            }
+            
+            // Education Loan Interest Deduction (Section 80E)
+            let educationLoanDeduction = 0;
+            if (hasEducationLoanCheckbox.checked && regimeData.deductions.education_loan) {
+                educationLoanDeduction = parseFloat(educationLoanAmountInput.value) || 0;
+                totalDeductions += educationLoanDeduction;
+            }
+            
+            // Employer Contribution Deduction (up to 10% of salary)
+            let employerContributionDeduction = 0;
+            if (hasEmployerContributionCheckbox.checked) {
+                const contributionAmount = parseFloat(employerContributionAmountInput.value) || 0;
+                const maxContribution = income * regimeData.deductions.employer_contribution;
+                employerContributionDeduction = Math.min(contributionAmount, maxContribution);
+                totalDeductions += employerContributionDeduction;
+            }
+            
+            // Calculate taxable income (with all applicable deductions)
+            const taxableIncome = Math.max(0, income - totalDeductions);
+            
+            // Calculate tax amount
+            const taxAmount = calculateTaxAmount(taxableIncome);
+            
+            // Display result and breakdown with new regime deductions
+            updateTaxDisplay(taxAmount, income, taxableIncome, standardDeduction, {
+                familyPension: familyPensionDeduction,
+                educationLoan: educationLoanDeduction,
+                employerContribution: employerContributionDeduction
+            });
+        } else {
+            // Old Regime deductions
+            
+            // Section 80C deductions
+            let section80CDeduction = 0;
+            if (hasSection80CCheckbox.checked) {
+                section80CDeduction = Math.min(
+                    parseFloat(section80CAmountInput.value) || 0,
+                    regimeData.deductions.section_80c
+                );
+                totalDeductions += section80CDeduction;
+            }
+            
+            // Section 80D deductions (health insurance)
+            let section80DSelfDeduction = 0;
+            let section80DParentsDeduction = 0;
+            if (hasSection80DCheckbox.checked) {
+                section80DSelfDeduction = Math.min(
+                    parseFloat(section80DSelfAmountInput.value) || 0,
+                    regimeData.deductions.section_80d_self
+                );
+                
+                section80DParentsDeduction = Math.min(
+                    parseFloat(section80DParentsAmountInput.value) || 0,
+                    regimeData.deductions.section_80d_parents
+                );
+                
+                totalDeductions += section80DSelfDeduction + section80DParentsDeduction;
+            }
+            
+            // Home loan interest deduction
+            let homeLoanInterestDeduction = 0;
+            if (hasHomeLoanInterestCheckbox.checked) {
+                homeLoanInterestDeduction = Math.min(
+                    parseFloat(homeLoanInterestAmountInput.value) || 0,
+                    regimeData.deductions.home_loan_interest
+                );
+                totalDeductions += homeLoanInterestDeduction;
+            }
+            
+            // Calculate taxable income (with all applicable deductions)
+            const taxableIncome = Math.max(0, income - totalDeductions);
+            
+            // Calculate tax amount
+            const taxAmount = calculateTaxAmount(taxableIncome);
+            
+            // Display result and breakdown with old regime deductions
+            updateTaxDisplay(taxAmount, income, taxableIncome, standardDeduction, {
+                section80C: section80CDeduction,
+                section80DSelf: section80DSelfDeduction,
+                section80DParents: section80DParentsDeduction,
+                homeLoanInterest: homeLoanInterestDeduction
+            });
         }
-        
-        // Education Loan Interest Deduction (Section 80E)
-        let educationLoanDeduction = 0;
-        if (hasEducationLoanCheckbox.checked) {
-            educationLoanDeduction = parseFloat(educationLoanAmountInput.value) || 0;
-            totalDeductions += educationLoanDeduction;
-        }
-        
-        // Employer Contribution Deduction (up to 10% of salary)
-        let employerContributionDeduction = 0;
-        if (hasEmployerContributionCheckbox.checked) {
-            const contributionAmount = parseFloat(employerContributionAmountInput.value) || 0;
-            const maxContribution = income * EMPLOYER_CONTRIBUTION_LIMIT_PERCENTAGE;
-            employerContributionDeduction = Math.min(contributionAmount, maxContribution);
-            totalDeductions += employerContributionDeduction;
-        }
-        
-        // Calculate taxable income (with all applicable deductions)
-        const taxableIncome = Math.max(0, income - totalDeductions);
-        
-        // Calculate tax amount
-        const taxAmount = calculateTaxAmount(taxableIncome);
-        
+    }
+    
+    // Helper function to update tax display
+    function updateTaxDisplay(taxAmount, income, taxableIncome, standardDeduction, deductions) {
         // Calculate effective tax rate
         const effectiveRate = income > 0 ? (taxAmount / income * 100).toFixed(2) : 0;
         
@@ -501,11 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
         annualTakeHomeSpan.textContent = formatCurrency(annualTakeHome) + ' annually';
         
         // Show tax breakdown
-        generateTaxBreakdown(taxableIncome, standardDeduction, income, {
-            familyPension: familyPensionDeduction,
-            educationLoan: educationLoanDeduction,
-            employerContribution: employerContributionDeduction
-        });
+        generateTaxBreakdown(taxableIncome, standardDeduction, income, deductions);
         
         // Generate tax slabs details
         generateTaxSlabDetails(taxableIncome);
@@ -517,8 +748,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (income > 0) {
             resultsSection.classList.remove('hidden');
             
-            // Update URL with calculation parameters if income is valid
-            updateURLWithCalculation(incomeInLakhs, isSalaried, taxAmount);
+            // Update URL with calculation parameters
+            updateURLWithCalculation(parseFloat(incomeInput.value), isSalariedCheckbox.checked, taxAmount);
             
             // Add share button if not already present
             if (!document.getElementById('share-result-btn')) {
@@ -531,10 +762,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Calculate tax amount based on taxable income
     function calculateTaxAmount(taxableIncome) {
+        // Get current tax regime data
+        const regimeData = getCurrentTaxRegimeData();
+        const slabs = regimeData.slabs;
+        const rebate = regimeData.rebate;
+        
         let tax = 0;
         
         // Calculate tax based on slabs
-        for (const slab of taxSlabs) {
+        for (const slab of slabs) {
             if (taxableIncome > slab.min) {
                 const slabIncome = Math.min(taxableIncome, slab.max) - slab.min;
                 tax += slabIncome * slab.rate;
@@ -542,8 +778,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Apply rebate under Section 87A
-        if (taxableIncome <= REBATE_LIMIT) {
-            tax = Math.max(0, tax - MAX_REBATE);
+        if (taxableIncome <= rebate.limit) {
+            tax = Math.max(0, tax - rebate.max);
         }
         
         // Add health and education cess (4%)
@@ -573,59 +809,104 @@ document.addEventListener('DOMContentLoaded', function() {
             breakdownHTML += `
                 <div class="flex justify-between">
                     <span>Standard Deduction:</span>
-                    <span class="font-medium text-green-600">- ${formatCurrency(standardDeduction)}</span>
+                    <span class="text-green-600">- ${formatCurrency(standardDeduction)}</span>
                 </div>
             `;
         }
         
-        // Add deductions before taxable income
-        if (deductions) {
+        // Add specific deductions based on regime
+        if (currentRegime === 'new') {
+            // Family Pension Deduction
             if (deductions.familyPension > 0) {
                 breakdownHTML += `
                     <div class="flex justify-between">
                         <span>Family Pension Deduction:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.familyPension)}</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.familyPension)}</span>
                     </div>
                 `;
             }
             
+            // Education Loan Interest
             if (deductions.educationLoan > 0) {
                 breakdownHTML += `
                     <div class="flex justify-between">
-                        <span>Education Loan Interest Deduction:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.educationLoan)}</span>
+                        <span>Education Loan Interest (80E):</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.educationLoan)}</span>
                     </div>
                 `;
             }
             
+            // Employer Contribution
             if (deductions.employerContribution > 0) {
                 breakdownHTML += `
                     <div class="flex justify-between">
-                        <span>Employer Contribution Deduction:</span>
-                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.employerContribution)}</span>
+                        <span>Employer Contribution to PF/NPS:</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.employerContribution)}</span>
+                    </div>
+                `;
+            }
+        } else {
+            // Section 80C
+            if (deductions.section80C > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Section 80C Investments:</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.section80C)}</span>
+                    </div>
+                `;
+            }
+            
+            // Section 80D - Self
+            if (deductions.section80DSelf > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Health Insurance - Self (80D):</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.section80DSelf)}</span>
+                    </div>
+                `;
+            }
+            
+            // Section 80D - Parents
+            if (deductions.section80DParents > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Health Insurance - Parents (80D):</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.section80DParents)}</span>
+                    </div>
+                `;
+            }
+            
+            // Home Loan Interest
+            if (deductions.homeLoanInterest > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Home Loan Interest (Sec 24):</span>
+                        <span class="text-green-600">- ${formatCurrency(deductions.homeLoanInterest)}</span>
                     </div>
                 `;
             }
         }
         
-        // Add taxable income with extra spacing
+        // Add net taxable income
         breakdownHTML += `
-            <div class="border-t border-gray-200 my-3"></div>
-            <div class="flex justify-between font-semibold">
-                <span>Taxable Income:</span>
+            <div class="flex justify-between mt-2 font-medium border-t border-gray-200 pt-2">
+                <span>Net Taxable Income:</span>
                 <span>${formatCurrency(taxableIncome)}</span>
             </div>
-            <div class="border-t border-gray-200 my-3"></div>
-            <div class="flex justify-between font-semibold mb-2">
+            
+            <div class="flex justify-between font-semibold mb-2 mt-4 border-t border-gray-200 pt-3">
                 <span>Tax Calculation</span>
             </div>
         `;
         
-        // Calculate tax for each slab
+        // Get regime data
+        const regimeData = getCurrentTaxRegimeData();
+        
+        // Calculate tax on each slab
         let totalTax = 0;
         let appliedRebate = 0;
         
-        for (const slab of taxSlabs) {
+        for (const slab of regimeData.slabs) {
             if (taxableIncome > slab.min) {
                 const slabIncome = Math.min(taxableIncome, slab.max) - slab.min;
                 const slabTax = slabIncome * slab.rate;
@@ -636,7 +917,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         : `${formatCurrency(slab.min)} to ${formatCurrency(slab.max)}`;
                     
                     breakdownHTML += `
-                        <div class="flex justify-between text-xs">
+                        <div class="flex justify-between text-sm">
                             <span>${slabRangeText} @ ${slab.rate * 100}%:</span>
                             <span>${formatCurrency(slabTax)}</span>
                         </div>
@@ -648,10 +929,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Add rebate information if applicable
-        if (taxableIncome <= REBATE_LIMIT && totalTax > 0) {
-            appliedRebate = Math.min(totalTax, MAX_REBATE);
+        if (taxableIncome <= regimeData.rebate.limit && totalTax > 0) {
+            appliedRebate = Math.min(totalTax, regimeData.rebate.max);
             breakdownHTML += `
-                <div class="flex justify-between text-xs text-green-600">
+                <div class="flex justify-between text-sm text-green-600">
                     <span>Rebate u/s 87A:</span>
                     <span>- ${formatCurrency(appliedRebate)}</span>
                 </div>
@@ -664,7 +945,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (totalTax > 0) {
             breakdownHTML += `
-                <div class="flex justify-between text-xs">
+                <div class="flex justify-between text-sm">
                     <span>Health & Education Cess @ 4%:</span>
                     <span>${formatCurrency(cess)}</span>
                 </div>
@@ -674,8 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add total tax
         const finalTax = totalTax + cess;
         breakdownHTML += `
-            <div class="border-t border-gray-200 my-2"></div>
-            <div class="flex justify-between font-semibold">
+            <div class="flex justify-between mt-2 font-medium border-t border-gray-200 pt-2">
                 <span>Total Tax Liability:</span>
                 <span>${formatCurrency(finalTax)}</span>
             </div>
@@ -697,6 +977,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Generate tax chart - simplified to only use income with standard deduction
     function generateTaxChart() {
+        // Get current tax regime data
+        const regimeData = getCurrentTaxRegimeData();
+        
         // Generate data points for the chart
         const dataPoints = [];
         const maxIncomeInLakhs = 30; // 30 lakhs
@@ -706,7 +989,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const income = incomeInLakhs * LAKH_VALUE;
             // Use current checkbox state if user has entered income, otherwise assume salaried for default view
             const isSalariedForGraph = incomeInput.value ? isSalariedCheckbox.checked : true;
-            const standardDeduction = isSalariedForGraph ? STANDARD_DEDUCTION : 0;
+            const standardDeduction = isSalariedForGraph ? regimeData.deductions.standard_deduction : 0;
             
             // For chart, only consider standard deduction to keep it simple and clear
             const taxableIncome = Math.max(0, income - standardDeduction);
@@ -721,110 +1004,124 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Create chart
-        const ctx = taxChart.getContext('2d');
-        
-        // Destroy previous chart if exists
-        if (window.taxLineChart instanceof Chart) {
-            window.taxLineChart.destroy();
-        }
-        
-        // Create new chart
-        window.taxLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dataPoints.map(point => point.incomeInLakhs.toFixed(1) + ' L'),
-                datasets: [{
+        // Create chart data
+        const chartData = {
+            labels: dataPoints.map(point => '₹' + point.incomeInLakhs + 'L'),
+            datasets: [
+                {
                     label: 'Tax Amount',
-                    data: dataPoints.map(point => point.tax),
+                    backgroundColor: 'rgba(79, 70, 229, 0.2)',
                     borderColor: 'rgba(79, 70, 229, 1)',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
                     borderWidth: 2,
-                    pointRadius: 0,
+                    data: dataPoints.map(point => point.tax),
+                    yAxisID: 'y',
                     fill: true,
-                    tension: 0.4,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: 'rgba(79, 70, 229, 1)',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                {
+                    label: 'Effective Tax Rate',
+                    backgroundColor: 'rgba(52, 211, 153, 0.0)',
+                    borderColor: 'rgba(52, 211, 153, 1)',
+                    borderWidth: 2,
+                    data: dataPoints.map(point => point.effectiveTaxRate),
+                    yAxisID: 'y1',
+                    type: 'line',
+                }
+            ]
+        };
+        
+        // Chart options
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Tax Amount (₹)',
+                        color: 'rgba(79, 70, 229, 1)'
                     },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                        titleFont: {
-                            size: 14,
-                            weight: 'bold',
-                            family: 'Inter'
-                        },
-                        bodyFont: {
-                            size: 13,
-                            family: 'Inter'
-                        },
-                        padding: 12,
-                        cornerRadius: 6,
-                        displayColors: false,
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                const index = tooltipItems[0].dataIndex;
-                                return `Income: ${formatCurrency(dataPoints[index].income)}`;
-                            },
-                            label: function(tooltipItem) {
-                                return `Tax: ${formatCurrency(tooltipItem.raw)}`;
-                            },
-                            afterLabel: function(tooltipItem) {
-                                const index = tooltipItem.dataIndex;
-                                const point = dataPoints[index];
-                                let lines = [
-                                    `Taxable Income: ${formatCurrency(point.taxableIncome)}`,
-                                    `Effective Tax Rate: ${point.effectiveTaxRate.toFixed(2)}%`
-                                ];
-                                return lines;
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return formatCurrencyShort(value);
+                        }
+                    },
+                    grid: {
+                        drawBorder: false,
+                    },
+                    position: 'left',
+                },
+                y1: {
+                    title: {
+                        display: true,
+                        text: 'Effective Tax Rate (%)',
+                        color: 'rgba(52, 211, 153, 1)'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false,
+                    },
+                    position: 'right',
+                    max: 35, // Maximum effective tax rate to show
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const dataIndex = context.dataIndex;
+                            const datasetIndex = context.datasetIndex;
+                            
+                            if (datasetIndex === 0) {
+                                // Tax Amount
+                                return 'Tax: ' + formatCurrency(dataPoints[dataIndex].tax);
+                            } else {
+                                // Effective Tax Rate
+                                return 'Effective Rate: ' + dataPoints[dataIndex].effectiveTaxRate.toFixed(2) + '%';
                             }
+                        },
+                        title: function(tooltipItems) {
+                            return 'Income: ₹' + tooltipItems[0].label;
+                        },
+                        afterBody: function(tooltipItems) {
+                            const dataIndex = tooltipItems[0].dataIndex;
+                            return 'Taxable: ' + formatCurrency(dataPoints[dataIndex].taxableIncome);
                         }
                     }
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Annual Income (₹ in Lakhs)',
-                            font: {
-                                size: 12
-                            }
-                        },
-                        ticks: {
-                            maxTicksLimit: 10
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Tax Amount (₹)',
-                            font: {
-                                size: 12
-                            }
-                        },
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return formatCurrencyShort(value);
-                            }
-                        }
+                title: {
+                    display: false
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 6
                     }
                 }
             }
+        };
+        
+        // Destroy existing chart if it exists
+        if (window.taxChart instanceof Chart) {
+            window.taxChart.destroy();
+        }
+        
+        // Create new chart
+        window.taxChart = new Chart(taxChart.getContext('2d'), {
+            type: 'bar',
+            data: chartData,
+            options: chartOptions
         });
     }
 
@@ -859,6 +1156,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generate detailed tax slab breakdown
     function generateTaxSlabDetails(taxableIncome) {
+        // Get current tax regime data
+        const regimeData = getCurrentTaxRegimeData();
+        
         let detailsHTML = '<table class="w-full text-sm">';
         detailsHTML += `
             <thead class="bg-gray-50">
@@ -873,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let totalSlabTax = 0;
         
-        for (const slab of taxSlabs) {
+        for (const slab of regimeData.slabs) {
             let slabIncome = 0;
             let slabTax = 0;
             
@@ -900,13 +1200,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply rebate under Section 87A
         let rebate = 0;
-        if (taxableIncome <= REBATE_LIMIT && totalSlabTax > 0) {
-            rebate = Math.min(totalSlabTax, MAX_REBATE);
+        if (taxableIncome <= regimeData.rebate.limit && totalSlabTax > 0) {
+            rebate = Math.min(totalSlabTax, regimeData.rebate.max);
             totalSlabTax = Math.max(0, totalSlabTax - rebate);
             
             detailsHTML += `
                 <tr class="bg-green-50">
-                    <td class="px-3 py-2" colspan="2">Rebate u/s 87A (for income up to ₹12L)</td>
+                    <td class="px-3 py-2" colspan="2">Rebate u/s 87A (for income up to ${formatCurrency(regimeData.rebate.limit)})</td>
                     <td class="px-3 py-2 text-right text-green-600">- ${formatCurrency(rebate)}</td>
                 </tr>
             `;
@@ -921,19 +1221,15 @@ document.addEventListener('DOMContentLoaded', function() {
             </tr>
         `;
         
-        // Total tax liability
+        // Add total tax
         const totalTax = totalSlabTax + cess;
         detailsHTML += `
+            <tr class="font-semibold bg-gray-50">
+                <td class="px-3 py-2" colspan="2">Total Tax Liability</td>
+                <td class="px-3 py-2 text-right">${formatCurrency(totalTax)}</td>
+            </tr>
             </tbody>
-            <tfoot>
-                <tr class="bg-gray-50">
-                    <td class="px-3 py-2 font-medium" colspan="2">Total Tax Liability</td>
-                    <td class="px-3 py-2 text-right font-medium">${formatCurrency(totalTax)}</td>
-                </tr>
-            </tfoot>
-        `;
-        
-        detailsHTML += '</table>';
+        </table>`;
         
         taxSlabDetailsDiv.innerHTML = detailsHTML;
     }
@@ -1066,4 +1362,135 @@ document.addEventListener('DOMContentLoaded', function() {
             shareBtn.classList.remove('copied');
         }, 2000);
     }
+
+    // Helper function to get current tax regime data
+    function getCurrentTaxRegimeData() {
+        return taxRegimeData[currentFinancialYear][currentRegime];
+    }
+    
+    // Helper function to update UI elements based on selected regime
+    function updateUIForRegime() {
+        // Update regime text
+        regimeTypeText.textContent = currentRegime === 'new' ? 'New' : 'Old';
+        
+        // Update standard deduction text
+        const stdDeduction = getCurrentTaxRegimeData().deductions.standard_deduction;
+        standardDeductionText.textContent = '₹' + formatIndianRupees(stdDeduction);
+        
+        // Update tax slabs display
+        taxSlabsRegimeYear.textContent = `${currentRegime === 'new' ? 'New' : 'Old'} Regime, FY ${currentFinancialYear}`;
+        updateTaxSlabsTable();
+        
+        // Show/hide appropriate deduction sections
+        if (currentRegime === 'new') {
+            newRegimeDeductions.classList.remove('hidden');
+            oldRegimeDeductions.classList.add('hidden');
+        } else {
+            newRegimeDeductions.classList.add('hidden');
+            oldRegimeDeductions.classList.remove('hidden');
+        }
+        
+        // Recalculate tax
+        calculateTax();
+    }
+    
+    // Function to update tax slabs table
+    function updateTaxSlabsTable() {
+        const slabs = getCurrentTaxRegimeData().slabs;
+        const tbody = taxSlabsTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        
+        slabs.forEach(slab => {
+            const row = document.createElement('tr');
+            
+            let rangeText;
+            if (slab.max === Infinity) {
+                rangeText = `Above ${formatIndianRupees(slab.min)}`;
+            } else {
+                rangeText = `${formatIndianRupees(slab.min)} - ${formatIndianRupees(slab.max)}`;
+            }
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${rangeText}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${slab.rate * 100}%</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    // Helper function to format currency in Indian format (e.g., 1,00,000)
+    function formatIndianRupees(amount) {
+        amount = Math.round(amount);
+        let result = amount.toString();
+        
+        let lastThree = result.substring(result.length - 3);
+        let otherNumbers = result.substring(0, result.length - 3);
+        if (otherNumbers !== '') {
+            lastThree = ',' + lastThree;
+        }
+        
+        let formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
+        return formatted;
+    }
+
+    // Setup event listeners for regime and financial year changes
+    financialYearSelect.addEventListener('change', function() {
+        currentFinancialYear = this.value;
+        updateUIForRegime();
+    });
+    
+    taxRegimeSelect.addEventListener('change', function() {
+        currentRegime = this.value;
+        updateUIForRegime();
+    });
+    
+    // Setup event listeners for additional deduction checkboxes
+    // New regime deductions
+    hasFamilyPensionCheckbox.addEventListener('change', function() {
+        familyPensionAmountWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    hasEducationLoanCheckbox.addEventListener('change', function() {
+        educationLoanAmountWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    hasEmployerContributionCheckbox.addEventListener('change', function() {
+        employerContributionWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    // Old regime deductions
+    hasSection80CCheckbox.addEventListener('change', function() {
+        section80CAmountWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    hasSection80DCheckbox.addEventListener('change', function() {
+        section80DAmountWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    hasHomeLoanInterestCheckbox.addEventListener('change', function() {
+        homeLoanInterestWrapper.classList.toggle('hidden', !this.checked);
+        calculateTax();
+    });
+    
+    // Add input event listeners for deduction amounts
+    familyPensionAmountInput.addEventListener('input', debounce(calculateTax));
+    educationLoanAmountInput.addEventListener('input', debounce(calculateTax));
+    employerContributionAmountInput.addEventListener('input', debounce(calculateTax));
+    section80CAmountInput.addEventListener('input', debounce(calculateTax));
+    section80DSelfAmountInput.addEventListener('input', debounce(calculateTax));
+    section80DParentsAmountInput.addEventListener('input', debounce(calculateTax));
+    homeLoanInterestAmountInput.addEventListener('input', debounce(calculateTax));
+    
+    // Initialize the calculator
+    initSlider();
+    updateUIForRegime(); // Initialize UI based on selected regime
+    updateExampleCards();
+    loadCalculationFromURL();
+    updateTaxSlabsTable(); // Initialize tax slabs table
 }); 
