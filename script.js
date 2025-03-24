@@ -1018,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderWidth: 2,
                     data: dataPoints.map(point => point.tax),
                     yAxisID: 'y',
-                    fill: true,
+                    fill: true
                 },
                 {
                     label: 'Effective Tax Rate',
@@ -1027,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderWidth: 2,
                     data: dataPoints.map(point => point.effectiveTaxRate),
                     yAxisID: 'y1',
-                    type: 'line',
+                    type: 'line'
                 }
             ]
         };
@@ -1109,7 +1109,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: 'top',
                     labels: {
                         usePointStyle: true,
-                        boxWidth: 6
+                        boxWidth: 12,
+                        padding: 6,
+                        pointStyle: 'rect'
                     }
                 }
             }
