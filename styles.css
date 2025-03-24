@@ -310,6 +310,10 @@ input[type="range"]::-moz-range-thumb:active {
 /* Slider tooltip */
 #slider-tooltip {
     transition: opacity 0.2s, transform 0.2s;
+    min-width: 120px;
+    text-align: center;
+    white-space: nowrap;
+    transform: translateX(-50%);
 }
 
 #slider-tooltip.visible {
@@ -323,8 +327,8 @@ input[type="range"]::-moz-range-thumb:active {
     margin-left: -4px;
     width: 8px;
     height: 8px;
-    background-color: #4f46e5;
     transform: rotate(45deg);
+    background-color: #4f46e5;
 }
 
 /* Tax bracket visualization */

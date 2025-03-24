@@ -57,14 +57,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Example income values in lakhs
     const exampleIncomes = [
-        { value: 12, label: '₹12 Lakhs' },
-        { value: 12.75, label: '₹12.75 Lakhs' },
-        { value: 15, label: '₹15 Lakhs' },
-        { value: 20, label: '₹20 Lakhs' },
-        { value: 25, label: '₹25 Lakhs' },
-        { value: 30, label: '₹30 Lakhs' },
-        { value: 35, label: '₹35 Lakhs' },
-        { value: 50, label: '₹50 Lakhs' }
+        { value: 12 },
+        { value: 12.75 },
+        { value: 15 },
+        { value: 20 },
+        { value: 25 },
+        { value: 30 },
+        { value: 35 },
+        { value: 40 },
+        { value: 45 },
+        { value: 50 },
+        { value: 75 },
+        { value: 100 }
     ];
 
     // Tax regime data for different financial years
@@ -210,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = cardClass;
             card.innerHTML = `
-                <div class="income">${income.label}</div>
+                <div class="income">${formatAmount(income.value)}</div>
                 <div class="tax">${formatCurrency(tax)}</div>
                 <div class="percentage">${effectiveRate}% of income</div>
                 <div class="monthly-salary text-sm text-green-600">${formatCurrencyShort(monthlyTakeHome)}/month</div>
@@ -381,8 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update the slider value display
     function updateSliderValue(value) {
-        const formattedValue = value > 0 ? '₹' + value + ' Lakhs' : '₹0';
-        tooltipValue.textContent = formattedValue;
+        tooltipValue.textContent = formatAmount(value);
     }
 
     // Update tooltip position
@@ -1269,10 +1272,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Share result function - handles both copy to clipboard and native sharing
     function shareResult() {
-        const income = parseFloat(incomeInput.value).toFixed(2).replace(/\.00$/, '');
+        const income = parseFloat(incomeInput.value) || 0;
         const isSalaried = isSalariedCheckbox.checked;
         const tax = taxAmountSpan.textContent;
-        const shareText = `My income of ₹${income} lakhs would result in a tax of ${tax} under the new tax regime for FY 2025-26. Calculate yours:`;
+        
+        // Format income using our function
+        const formattedIncome = formatAmount(income).replace('₹', '');
+        
+        const shareText = `My income of ${formattedIncome} would result in a tax of ${tax} under the ${currentRegime} tax regime for FY ${currentFinancialYear}. Calculate yours:`;
         
         // Get current URL from the browser (with parameters already set by updateURLWithCalculation)
         const shareUrl = window.location.href;
@@ -1493,4 +1500,15 @@ document.addEventListener('DOMContentLoaded', function() {
     updateExampleCards();
     loadCalculationFromURL();
     updateTaxSlabsTable(); // Initialize tax slabs table
+
+    // Function to format amount in lakhs or crores
+    function formatAmount(amount) {
+        if (amount >= 100) {
+            return `${(amount/100).toFixed(2)} Cr`;
+        } else if (amount > 0) {
+            return `₹${amount} Lakhs`;
+        } else {
+            return '₹0';
+        }
+    }
 }); 
