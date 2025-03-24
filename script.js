@@ -986,7 +986,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Generate data points for the chart
         const dataPoints = [];
         const maxIncomeInLakhs = 100; // 30 lakhs
-        const step = 2.5; // 1 lakh
+        const step = 2.5; // 2.5 lakh
         
         for (let incomeInLakhs = 0; incomeInLakhs <= maxIncomeInLakhs; incomeInLakhs += step) {
             const income = incomeInLakhs * LAKH_VALUE;
@@ -1015,19 +1015,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Tax Amount',
                     backgroundColor: 'rgba(79, 70, 229, 0.2)',
                     borderColor: 'rgba(79, 70, 229, 1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     data: dataPoints.map(point => point.tax),
                     yAxisID: 'y',
-                    fill: true
-                },
-                {
-                    label: 'Effective Tax Rate',
-                    backgroundColor: 'rgba(52, 211, 153, 0.0)',
-                    borderColor: 'rgba(52, 211, 153, 1)',
-                    borderWidth: 2,
-                    data: dataPoints.map(point => point.effectiveTaxRate),
-                    yAxisID: 'y1',
-                    type: 'line'
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
                 }
             ]
         };
@@ -1041,6 +1035,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 intersect: false,
             },
             scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Annual Income (₹)',
+                        color: 'rgba(107, 114, 128, 1)'
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
                 y: {
                     title: {
                         display: true,
@@ -1057,25 +1061,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         drawBorder: false,
                     },
                     position: 'left',
-                },
-                y1: {
-                    title: {
-                        display: true,
-                        text: 'Effective Tax Rate (%)',
-                        color: 'rgba(52, 211, 153, 1)'
-                    },
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    },
-                    grid: {
-                        display: false,
-                        drawBorder: false,
-                    },
-                    position: 'right',
-                    max: 35, // Maximum effective tax rate to show
                 }
             },
             plugins: {
@@ -1083,18 +1068,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     callbacks: {
                         label: function(context) {
                             const dataIndex = context.dataIndex;
-                            const datasetIndex = context.datasetIndex;
-                            
-                            if (datasetIndex === 0) {
-                                // Tax Amount
-                                return 'Tax: ' + formatCurrency(dataPoints[dataIndex].tax);
-                            } else {
-                                // Effective Tax Rate
-                                return 'Effective Rate: ' + dataPoints[dataIndex].effectiveTaxRate.toFixed(2) + '%';
-                            }
+                            return 'Tax: ' + formatCurrency(dataPoints[dataIndex].tax);
                         },
                         title: function(tooltipItems) {
-                            return 'Income: ₹' + tooltipItems[0].label;
+                            return 'Income: ' + tooltipItems[0].label;
                         },
                         afterBody: function(tooltipItems) {
                             const dataIndex = tooltipItems[0].dataIndex;
@@ -1106,13 +1083,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: false
                 },
                 legend: {
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: 12,
-                        padding: 6,
-                        pointStyle: 'rect'
-                    }
+                    display: false
                 }
             }
         };
@@ -1124,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create new chart
         window.taxChart = new Chart(taxChart.getContext('2d'), {
-            type: 'bar',
+            type: 'line',
             data: chartData,
             options: chartOptions
         });
