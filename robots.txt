@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://incometaxcal.in/sitemap.xml 
