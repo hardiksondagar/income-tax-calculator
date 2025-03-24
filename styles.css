@@ -401,4 +401,14 @@ input[type="range"]::-moz-range-thumb:active {
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Disable hover effects */
+.no-hover {
+  transition: none !important;
+  transform: none !important;
+}
+.no-hover:hover {
+  transform: none !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 } 
