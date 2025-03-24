@@ -3,11 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Tax Calculator FY 2025-26</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Income Tax Calculator FY 2025-26 | New Tax Regime India</title>
+    <meta name="title" content="Income Tax Calculator FY 2025-26 | New Tax Regime India">
+    <meta name="description" content="Calculate your income tax liability for FY 2025-26 (AY 2026-27) under the new tax regime in India. Free, accurate, and easy-to-use tax calculator with detailed breakdown.">
+    <meta name="keywords" content="income tax calculator, tax calculator india, new tax regime, FY 2025-26, AY 2026-27, income tax india, tax slabs, section 87A, standard deduction">
+    <meta name="author" content="Income Tax Calculator">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/logo.png">
+    
+
+    <!-- Preconnect to External Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Mobile Optimization -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- External Scripts with defer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="styles.css">
+    
 </head>
 <body class="bg-gray-50 font-inter">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -256,9 +279,20 @@
 
         <footer class="mt-8 text-center text-gray-500 text-sm">
             <p class="mb-2">This calculator is for informational purposes only. Tax laws are subject to change.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Terms of Use</a>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Privacy Policy</a>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Contact</a>
+            </div>
+            <p class="mt-4">&copy; <span id="current-year">2023</span> Income Tax Calculator. All rights reserved.</p>
         </footer>
     </div>
 
+    <script>
+        // Update copyright year automatically
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
     <script src="script.js"></script>
+
 </body>
 </html> 
