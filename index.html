@@ -35,6 +35,7 @@
 <body class="bg-gray-50 font-inter">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <header class="text-center mb-10">
+            <img src="/logo.png" alt="Income Tax Calculator Logo" class="h-16 mx-auto mb-3">
             <h1 class="text-3xl font-bold text-indigo-800 mb-2">Income Tax Calculator</h1>
             <p class="text-gray-600">Simplified taxation under the new regime from FY 2025-26 onwards</p>
         </header>
@@ -279,19 +280,8 @@
 
         <footer class="mt-8 text-center text-gray-500 text-sm">
             <p class="mb-2">This calculator is for informational purposes only. Tax laws are subject to change.</p>
-            <div class="mt-4 flex justify-center space-x-4">
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Terms of Use</a>
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Privacy Policy</a>
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 transition-colors">Contact</a>
-            </div>
-            <p class="mt-4">&copy; <span id="current-year">2023</span> Income Tax Calculator. All rights reserved.</p>
         </footer>
     </div>
-
-    <script>
-        // Update copyright year automatically
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
     <script src="script.js"></script>
 
 </body>
