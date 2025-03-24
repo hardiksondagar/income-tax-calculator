@@ -122,7 +122,57 @@
                 </label>
             </div>
 
-            <!-- All deduction sections have been removed for simplified calculation -->
+            <div class="mt-4 flex items-center justify-between">
+                <button id="toggle-deductions-btn" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Show Additional Deductions
+                </button>
+            </div>
+
+            <div id="deductions-section" class="hidden mt-4 border-t border-dashed border-gray-200 pt-4">
+                <h3 class="text-md font-medium text-gray-700 mb-3">Available Deductions Under New Regime</h3>
+                
+                <div class="space-y-4">
+                    <!-- Family Pension Deduction -->
+                    <div>
+                        <label class="inline-flex items-center mb-1">
+                            <input type="checkbox" id="has-family-pension" class="form-checkbox h-5 w-5 text-indigo-600">
+                            <span class="ml-2 text-gray-700">Family Pension (₹25,000 or 1/3 of pension, whichever is less)</span>
+                        </label>
+                        <div id="family-pension-amount-wrapper" class="hidden mt-2 pl-7">
+                            <label for="family-pension-amount" class="block text-sm text-gray-600 mb-1">Family Pension Amount (₹)</label>
+                            <input type="number" id="family-pension-amount" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="e.g., 100000">
+                        </div>
+                    </div>
+                    
+                    <!-- Education Loan Interest Deduction -->
+                    <div>
+                        <label class="inline-flex items-center mb-1">
+                            <input type="checkbox" id="has-education-loan" class="form-checkbox h-5 w-5 text-indigo-600">
+                            <span class="ml-2 text-gray-700">Interest on Education Loan (Section 80E)</span>
+                        </label>
+                        <div id="education-loan-amount-wrapper" class="hidden mt-2 pl-7">
+                            <label for="education-loan-amount" class="block text-sm text-gray-600 mb-1">Interest Paid on Education Loan (₹)</label>
+                            <input type="number" id="education-loan-amount" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="e.g., 50000">
+                        </div>
+                    </div>
+                    
+                    <!-- Employer Contribution to NPS/PF -->
+                    <div>
+                        <label class="inline-flex items-center mb-1">
+                            <input type="checkbox" id="has-employer-contribution" class="form-checkbox h-5 w-5 text-indigo-600">
+                            <span class="ml-2 text-gray-700">Employer Contribution to PF/NPS (up to 10% of salary)</span>
+                        </label>
+                        <div id="employer-contribution-wrapper" class="hidden mt-2 pl-7">
+                            <label for="employer-contribution-amount" class="block text-sm text-gray-600 mb-1">Employer Contribution Amount (₹)</label>
+                            <input type="number" id="employer-contribution-amount" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="e.g., 75000">
+                            <p class="text-xs text-gray-500 mt-1">Only 10% of your salary will be considered as deduction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="results" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
@@ -294,7 +344,14 @@
                         </svg>
                     </button>
                     <div class="faq-answer hidden px-4 pt-2 pb-4">
-                        <p class="text-gray-600">This simplified tax calculator only considers the standard deduction of ₹75,000 for salaried individuals. We've removed all other deductions to make the calculation simpler and more straightforward.</p>
+                        <p class="text-gray-600">The new tax regime allows the following deductions:</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1 mt-2">
+                            <li><strong>Standard Deduction:</strong> ₹75,000 for salaried employees</li>
+                            <li><strong>Family Pension Deduction:</strong> Up to ₹25,000 or 1/3 of the family pension, whichever is less</li>
+                            <li><strong>Interest on Education Loan (Section 80E):</strong> No upper limit on interest paid for higher education loans</li>
+                            <li><strong>Employer Contribution to Recognized Funds:</strong> Up to 10% of salary for employer contributions to PF, NPS, and other approved pension funds</li>
+                        </ul>
+                        <p class="mt-2 text-gray-600">Common deductions like those under Section 80C (PPF, life insurance) and Section 80D (health insurance) are not available under the new tax regime.</p>
                     </div>
                 </div>
                 

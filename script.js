@@ -15,6 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const exampleCardsContainer = document.getElementById('example-cards-container');
     const monthlySalarySpan = document.getElementById('monthly-salary');
     const annualTakeHomeSpan = document.getElementById('annual-take-home');
+    
+    // Deduction elements
+    const toggleDeductionsBtn = document.getElementById('toggle-deductions-btn');
+    const deductionsSection = document.getElementById('deductions-section');
+    const hasFamilyPensionCheckbox = document.getElementById('has-family-pension');
+    const familyPensionAmountWrapper = document.getElementById('family-pension-amount-wrapper');
+    const familyPensionAmountInput = document.getElementById('family-pension-amount');
+    const hasEducationLoanCheckbox = document.getElementById('has-education-loan');
+    const educationLoanAmountWrapper = document.getElementById('education-loan-amount-wrapper');
+    const educationLoanAmountInput = document.getElementById('education-loan-amount');
+    const hasEmployerContributionCheckbox = document.getElementById('has-employer-contribution');
+    const employerContributionWrapper = document.getElementById('employer-contribution-wrapper');
+    const employerContributionAmountInput = document.getElementById('employer-contribution-amount');
 
     // Example income values in lakhs
     const exampleIncomes = [
@@ -44,6 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const REBATE_LIMIT = 1200000;
     const MAX_REBATE = 60000;
     const LAKH_VALUE = 100000; // 1 lakh = 100,000
+    const MAX_FAMILY_PENSION_DEDUCTION = 25000; // Max deduction for family pension
+    const EMPLOYER_CONTRIBUTION_LIMIT_PERCENTAGE = 0.1; // 10% of salary limit for employer contribution
 
     // Debounce function for input fields
     function debounce(func, wait = 300) {
@@ -66,6 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         exampleIncomes.forEach(income => {
             // Calculate taxable income and tax
             const incomeInRupees = income.value * LAKH_VALUE;
+            
+            // For example cards, only consider standard deduction to keep it simple
             const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
             const taxableIncome = Math.max(0, incomeInRupees - standardDeduction);
             const tax = calculateTaxAmount(taxableIncome);
@@ -120,6 +137,61 @@ document.addEventListener('DOMContentLoaded', function() {
             this.textContent = 'Show Details';
         }
     });
+
+    // Toggle deductions section
+    toggleDeductionsBtn.addEventListener('click', function() {
+        const isHidden = deductionsSection.classList.contains('hidden');
+        
+        if (isHidden) {
+            deductionsSection.classList.remove('hidden');
+            this.innerHTML = `
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                Hide Additional Deductions
+            `;
+        } else {
+            deductionsSection.classList.add('hidden');
+            this.innerHTML = `
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Show Additional Deductions
+            `;
+        }
+    });
+    
+    // Toggle family pension amount input
+    hasFamilyPensionCheckbox.addEventListener('change', function() {
+        familyPensionAmountWrapper.classList.toggle('hidden', !this.checked);
+        if (this.checked && !familyPensionAmountInput.value) {
+            familyPensionAmountInput.value = '100000'; // Default value
+        }
+        calculateTax();
+    });
+    
+    // Toggle education loan amount input
+    hasEducationLoanCheckbox.addEventListener('change', function() {
+        educationLoanAmountWrapper.classList.toggle('hidden', !this.checked);
+        if (this.checked && !educationLoanAmountInput.value) {
+            educationLoanAmountInput.value = '50000'; // Default value
+        }
+        calculateTax();
+    });
+    
+    // Toggle employer contribution amount input
+    hasEmployerContributionCheckbox.addEventListener('change', function() {
+        employerContributionWrapper.classList.toggle('hidden', !this.checked);
+        if (this.checked && !employerContributionAmountInput.value) {
+            employerContributionAmountInput.value = '75000'; // Default value
+        }
+        calculateTax();
+    });
+    
+    // Add input event listeners to deduction amount inputs
+    familyPensionAmountInput.addEventListener('input', debounce(calculateTax));
+    educationLoanAmountInput.addEventListener('input', debounce(calculateTax));
+    employerContributionAmountInput.addEventListener('input', debounce(calculateTax));
 
     // Set up FAQ toggles
     const faqQuestions = document.querySelectorAll('.faq-question');
@@ -265,54 +337,102 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Load calculation from URL parameters
+    // Load calculation from URL
     function loadCalculationFromURL() {
-        // Check query parameters
         const urlParams = new URLSearchParams(window.location.search);
+        const incomeParam = urlParams.get('income');
+        const salariedParam = urlParams.get('salaried');
         
-        // Check for income parameter
-        if(urlParams.has('income')) {
-            // Parse income, handling the "lakhs" suffix if present
-            let incomeParam = urlParams.get('income');
-            // Remove "lakhs" suffix if present
-            incomeParam = incomeParam.replace(/lakhs$/, '').trim();
-            
+        // Set income and salaried status if provided
+        if (incomeParam) {
             const income = parseFloat(incomeParam);
-            if(!isNaN(income)) {
+            if (!isNaN(income)) {
                 incomeInput.value = income;
                 incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
-                updateSliderValue(incomeSlider.value);
+                updateSliderValue(income);
             }
         }
         
-        // Check for salaried parameter
-        if(urlParams.has('salaried')) {
-            const salaried = urlParams.get('salaried') === 'true';
-            isSalariedCheckbox.checked = salaried;
+        // Set salaried status
+        if (salariedParam === 'true' || salariedParam === 'false') {
+            isSalariedCheckbox.checked = salariedParam === 'true';
+        }
+        
+        // Set additional deduction parameters if provided
+        const fpParam = urlParams.get('fp');
+        if (fpParam === 'true') {
+            hasFamilyPensionCheckbox.checked = true;
+            familyPensionAmountWrapper.classList.remove('hidden');
+            const fpAmount = urlParams.get('fpAmount');
+            if (fpAmount) {
+                familyPensionAmountInput.value = fpAmount;
+            }
+        }
+        
+        const elParam = urlParams.get('el');
+        if (elParam === 'true') {
+            hasEducationLoanCheckbox.checked = true;
+            educationLoanAmountWrapper.classList.remove('hidden');
+            const elAmount = urlParams.get('elAmount');
+            if (elAmount) {
+                educationLoanAmountInput.value = elAmount;
+            }
+        }
+        
+        const ecParam = urlParams.get('ec');
+        if (ecParam === 'true') {
+            hasEmployerContributionCheckbox.checked = true;
+            employerContributionWrapper.classList.remove('hidden');
+            const ecAmount = urlParams.get('ecAmount');
+            if (ecAmount) {
+                employerContributionAmountInput.value = ecAmount;
+            }
+        }
+        
+        // Show deductions section if any deduction is active
+        if (fpParam === 'true' || elParam === 'true' || ecParam === 'true') {
+            deductionsSection.classList.remove('hidden');
+            toggleDeductionsBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                Hide Additional Deductions
+            `;
+        }
+        
+        // Calculate tax
+        if (incomeParam) {
+            calculateTax();
         }
     }
     
     // Update URL with calculation parameters
     function updateURLWithCalculation(income, isSalaried, taxAmount) {
-        // Format values for URL
-        const formattedIncome = parseFloat(income).toFixed(2).replace(/\.00$/, '');
-        const formattedTax = Math.round(taxAmount);
-        
-        // Create URL parameters for sharing
+        // Create URL parameters
         const params = new URLSearchParams();
-        params.set('income', formattedIncome + 'lakhs'); // Add "lakhs" suffix
+        params.set('income', income);
         params.set('salaried', isSalaried);
-        params.set('tax', formattedTax);
+        params.set('tax', Math.round(taxAmount));
         
-        // Preserve the current path and append query parameters
-        const currentPath = window.location.pathname;
-        const queryUrl = `${currentPath}?${params.toString()}`;
+        // Add deduction parameters if applicable
+        if (hasFamilyPensionCheckbox.checked) {
+            params.set('fp', 'true');
+            params.set('fpAmount', familyPensionAmountInput.value);
+        }
         
-        // Update URL with preserved path and query parameters
-        window.history.replaceState({}, '', queryUrl);
+        if (hasEducationLoanCheckbox.checked) {
+            params.set('el', 'true');
+            params.set('elAmount', educationLoanAmountInput.value);
+        }
         
-        // Return the full shareable URL
-        return window.location.origin + queryUrl;
+        if (hasEmployerContributionCheckbox.checked) {
+            params.set('ec', 'true');
+            params.set('ecAmount', employerContributionAmountInput.value);
+        }
+        
+        // Update URL without reloading the page
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        history.replaceState(null, '', newUrl);
     }
 
     // Calculate tax function
@@ -331,8 +451,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const isSalaried = isSalariedCheckbox.checked;
         const standardDeduction = isSalaried ? STANDARD_DEDUCTION : 0;
         
-        // Calculate taxable income (only standard deduction)
-        const taxableIncome = Math.max(0, income - standardDeduction);
+        // Get additional deductions
+        let totalDeductions = standardDeduction;
+        
+        // Family Pension Deduction (up to ₹25,000 or 1/3 of pension, whichever is less)
+        let familyPensionDeduction = 0;
+        if (hasFamilyPensionCheckbox.checked) {
+            const familyPensionAmount = parseFloat(familyPensionAmountInput.value) || 0;
+            const oneThirdPension = familyPensionAmount / 3;
+            familyPensionDeduction = Math.min(oneThirdPension, MAX_FAMILY_PENSION_DEDUCTION);
+            totalDeductions += familyPensionDeduction;
+        }
+        
+        // Education Loan Interest Deduction (Section 80E)
+        let educationLoanDeduction = 0;
+        if (hasEducationLoanCheckbox.checked) {
+            educationLoanDeduction = parseFloat(educationLoanAmountInput.value) || 0;
+            totalDeductions += educationLoanDeduction;
+        }
+        
+        // Employer Contribution Deduction (up to 10% of salary)
+        let employerContributionDeduction = 0;
+        if (hasEmployerContributionCheckbox.checked) {
+            const contributionAmount = parseFloat(employerContributionAmountInput.value) || 0;
+            const maxContribution = income * EMPLOYER_CONTRIBUTION_LIMIT_PERCENTAGE;
+            employerContributionDeduction = Math.min(contributionAmount, maxContribution);
+            totalDeductions += employerContributionDeduction;
+        }
+        
+        // Calculate taxable income (with all applicable deductions)
+        const taxableIncome = Math.max(0, income - totalDeductions);
         
         // Calculate tax amount
         const taxAmount = calculateTaxAmount(taxableIncome);
@@ -353,7 +501,11 @@ document.addEventListener('DOMContentLoaded', function() {
         annualTakeHomeSpan.textContent = formatCurrency(annualTakeHome) + ' annually';
         
         // Show tax breakdown
-        generateTaxBreakdown(taxableIncome, standardDeduction, income);
+        generateTaxBreakdown(taxableIncome, standardDeduction, income, {
+            familyPension: familyPensionDeduction,
+            educationLoan: educationLoanDeduction,
+            employerContribution: employerContributionDeduction
+        });
         
         // Generate tax slabs details
         generateTaxSlabDetails(taxableIncome);
@@ -401,12 +553,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Generate tax breakdown
-    function generateTaxBreakdown(taxableIncome, standardDeduction, income) {
+    function generateTaxBreakdown(taxableIncome, standardDeduction, income, deductions) {
         // Clear previous breakdown
         taxBreakdownDiv.innerHTML = '';
         
         // Add income and deduction details
         let breakdownHTML = `
+            <div class="flex justify-between font-semibold mb-2">
+                <span>Income & Deductions</span>
+            </div>
             <div class="flex justify-between">
                 <span>Total Income:</span>
                 <span class="font-medium">${formatCurrency(income)}</span>
@@ -423,13 +578,47 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        // Add taxable income
+        // Add deductions before taxable income
+        if (deductions) {
+            if (deductions.familyPension > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Family Pension Deduction:</span>
+                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.familyPension)}</span>
+                    </div>
+                `;
+            }
+            
+            if (deductions.educationLoan > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Education Loan Interest Deduction:</span>
+                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.educationLoan)}</span>
+                    </div>
+                `;
+            }
+            
+            if (deductions.employerContribution > 0) {
+                breakdownHTML += `
+                    <div class="flex justify-between">
+                        <span>Employer Contribution Deduction:</span>
+                        <span class="font-medium text-green-600">- ${formatCurrency(deductions.employerContribution)}</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Add taxable income with extra spacing
         breakdownHTML += `
+            <div class="border-t border-gray-200 my-3"></div>
             <div class="flex justify-between font-semibold">
                 <span>Taxable Income:</span>
                 <span>${formatCurrency(taxableIncome)}</span>
             </div>
-            <div class="border-t border-gray-200 my-2"></div>
+            <div class="border-t border-gray-200 my-3"></div>
+            <div class="flex justify-between font-semibold mb-2">
+                <span>Tax Calculation</span>
+            </div>
         `;
         
         // Calculate tax for each slab
@@ -519,6 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isSalariedForGraph = incomeInput.value ? isSalariedCheckbox.checked : true;
             const standardDeduction = isSalariedForGraph ? STANDARD_DEDUCTION : 0;
             
+            // For chart, only consider standard deduction to keep it simple and clear
             const taxableIncome = Math.max(0, income - standardDeduction);
             const tax = calculateTaxAmount(taxableIncome);
             
@@ -783,30 +973,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Share result function - handles both copy to clipboard and native sharing
     function shareResult() {
-        const incomeInLakhs = parseFloat(incomeInput.value) || 0;
+        const income = parseFloat(incomeInput.value).toFixed(2).replace(/\.00$/, '');
         const isSalaried = isSalariedCheckbox.checked;
-        const taxAmount = parseFloat(taxAmountSpan.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+        const tax = taxAmountSpan.textContent;
+        const shareText = `My income of ₹${income} lakhs would result in a tax of ${tax} under the new tax regime for FY 2025-26. Calculate yours:`;
         
-        // Get the shareable URL
-        const shareableUrl = updateURLWithCalculation(incomeInLakhs, isSalaried, taxAmount);
+        // Get current URL from the browser (with parameters already set by updateURLWithCalculation)
+        const shareUrl = window.location.href;
         
-        // Create share data object
-        const shareData = {
-            title: 'Income Tax Calculator FY 2025-26',
-            text: `Check my income tax calculation for ₹${incomeInLakhs} lakhs (${formatCurrency(incomeInLakhs * LAKH_VALUE)}): ${taxAmountSpan.textContent}`,
-            url: shareableUrl
-        };
+        // Combine text and URL
+        const fullShareText = `${shareText} ${shareUrl}`;
         
-        // Try to use Web Share API if available
+        // Try to use the Web Share API if available
         if (navigator.share) {
-            navigator.share(shareData)
-            .catch(error => {
-                console.log('Error sharing:', error);
-                copyToClipboard(shareableUrl);
+            navigator.share({
+                title: 'Income Tax Calculation',
+                text: shareText,
+                url: shareUrl
+            }).catch(err => {
+                // Fallback if share fails
+                copyToClipboard(fullShareText);
             });
         } else {
-            // Fallback to clipboard copy
-            copyToClipboard(shareableUrl);
+            // Fallback to clipboard copy on desktop
+            copyToClipboard(fullShareText);
         }
     }
     

@@ -8,6 +8,7 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 - **Tax Calculation**: Calculate tax liability based on the new tax regime slabs.
 - **Income in Lakhs**: Input your income in lakhs for easier entry of large numbers (up to 5Cr).
 - **Standard Deduction**: Automatic ₹75,000 deduction for salaried employees.
+- **Additional Deductions**: Support for family pension, education loan interest, and employer contributions to PF/NPS.
 - **Visual Representation**: Interactive graph showing tax liability vs. income.
 - **Detailed Breakdown**: Itemized breakdown of tax calculations across different slabs.
 - **Rebate Consideration**: Automatic application of rebate under Section 87A (up to ₹60,000).
@@ -38,18 +39,20 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 ## Available Deductions Under New Regime
 
 - **Standard Deduction**: Automatic ₹75,000 for salaried individuals.
-
-*Note: This simplified calculator currently only implements the standard deduction for salaried employees. The full version of the new tax regime allows for additional specific deductions which may be added in future updates.*
+- **Family Pension Deduction**: Up to ₹25,000 or 1/3 of the family pension amount, whichever is less.
+- **Education Loan Interest Deduction (Section 80E)**: No upper limit on interest paid for higher education loans.
+- **Employer Contribution to Funds**: Up to 10% of salary for employer contributions to PF, NPS, or other approved pension funds.
 
 ## How to Use
 
 1. Enter your annual income in lakhs (e.g., enter 12.75 for ₹12,75,000).
 2. Check/uncheck the salaried employee option (applies ₹75,000 standard deduction).
-3. Your tax liability and breakdown will automatically calculate and display as you make changes.
-4. Review the visual graph to understand how tax changes with income.
-5. Explore example calculations and tax slabs for reference.
-6. Check the FAQ section for answers to common questions.
-7. Share your calculation with others using the "Share Result" button. This creates a link that anyone can use to see your tax calculation.
+3. Click "Show Additional Deductions" to access and configure other available deductions under the new tax regime.
+4. Your tax liability and breakdown will automatically calculate and display as you make changes.
+5. Review the visual graph to understand how tax changes with income.
+6. Explore example calculations and tax slabs for reference.
+7. Check the FAQ section for answers to common questions.
+8. Share your calculation with others using the "Share Result" button. This creates a link that anyone can use to see your tax calculation.
 
 ### Shareable URLs
 
