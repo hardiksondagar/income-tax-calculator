@@ -267,9 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load calculation from URL parameters
     function loadCalculationFromURL() {
-        // First check query parameters
+        // Check query parameters
         const urlParams = new URLSearchParams(window.location.search);
-        let foundParams = false;
         
         // Check for income parameter
         if(urlParams.has('income')) {
@@ -283,35 +282,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 incomeInput.value = income;
                 incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
                 updateSliderValue(incomeSlider.value);
-                foundParams = true;
             }
         }
         
         // Check for salaried parameter
         if(urlParams.has('salaried')) {
-            const salaried = urlParams.get('salaried') === 'true' || urlParams.get('salaried') === '/salaried';
+            const salaried = urlParams.get('salaried') === 'true';
             isSalariedCheckbox.checked = salaried;
-            foundParams = true;
-        }
-        
-        // If no params found in query, check the URL path (only works if server has URL rewriting)
-        if (!foundParams) {
-            const path = window.location.pathname;
-            const pathMatch = path.match(/\/tax-calculator\/income\/([0-9.]+)(-lakhs)?(\/salaried)?(\/amount\/\d+)?/);
-            
-            if (pathMatch) {
-                // Parse income from path
-                const income = parseFloat(pathMatch[1]);
-                if (!isNaN(income)) {
-                    incomeInput.value = income;
-                    incomeSlider.value = Math.min(income, parseFloat(incomeSlider.max));
-                    updateSliderValue(incomeSlider.value);
-                }
-                
-                // Check if salaried is in path
-                const isSalaried = pathMatch[3] !== undefined;
-                isSalariedCheckbox.checked = isSalaried;
-            }
         }
     }
     
@@ -327,20 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
         params.set('salaried', isSalaried);
         params.set('tax', formattedTax);
         
-        // Create SEO-friendly URL path (for sharing in text)
-        let seoPath = `/tax-calculator/income/${formattedIncome}-lakhs`; // Add "lakhs" here too
-        if(isSalaried) {
-            seoPath += '/salaried';
-        }
-        seoPath += `/amount/${formattedTax}`;
+        // Preserve the current path and append query parameters
+        const currentPath = window.location.pathname;
+        const queryUrl = `${currentPath}?${params.toString()}`;
         
-        // Use query parameters in the browser for reliability
-        const queryUrl = `?${params.toString()}`;
+        // Update URL with preserved path and query parameters
         window.history.replaceState({}, '', queryUrl);
         
-        // Return the SEO-friendly URL for sharing
-        // This URL will work if the server has proper URL rewriting configured
-        return window.location.origin + seoPath;
+        // Return the full shareable URL
+        return window.location.origin + queryUrl;
     }
 
     // Calculate tax function

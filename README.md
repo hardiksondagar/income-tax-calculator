@@ -51,9 +51,9 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 6. Check the FAQ section for answers to common questions.
 7. Share your calculation with others using the "Share Result" button. This creates a link that anyone can use to see your tax calculation.
 
-### Server Configuration for SEO-friendly URLs
+### Shareable URLs
 
-If you're running this calculator on a web server with Apache, you can enable the included .htaccess file for clean, SEO-friendly URLs. This allows URLs in the format of `/tax-calculator/income/12.5/salaried/amount/137500` to work directly.
+The calculator uses query parameters to create shareable URLs. When you calculate your tax, the URL in your browser will be updated with parameters that reflect your current settings (e.g., `https://example.com/calculator/?income=20lakhs&salaried=true&tax=192400`). You can copy this URL to share your calculation with others.
 
 ## Technologies Used
 
