@@ -6,7 +6,7 @@ A modern, responsive income tax calculator for the new tax regime in India for t
 
 - **Simple & Modern UI**: Clean, intuitive interface with smooth animations and responsive design.
 - **Tax Calculation**: Calculate tax liability based on the new tax regime slabs.
-- **Income in Lakhs**: Input your income in lakhs for easier entry of large numbers.
+- **Income in Lakhs**: Input your income in lakhs for easier entry of large numbers (up to 5Cr).
 - **Standard Deduction**: Automatic ₹75,000 deduction for salaried employees.
 - **Visual Representation**: Interactive graph showing tax liability vs. income.
 - **Detailed Breakdown**: Itemized breakdown of tax calculations across different slabs.
